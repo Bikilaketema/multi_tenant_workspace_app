@@ -17,7 +17,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    restart: always
+    restart: on-failure
     container_name: ${COMPOSE_PROJECT_NAME}-app
     environment:
       DB_URL: postgres://${DB_USERNAME}:${DB_PASSWORD}@db:5432/${DB_DATABASE}
@@ -25,6 +25,9 @@ services:
       - "3000:3000"
     depends_on:
       - db
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
     command: 
       - /bin/sh
       - -c
