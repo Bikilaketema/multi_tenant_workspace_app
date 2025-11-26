@@ -1,0 +1,60 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Outline {
+  id          Int         @id @default(autoincrement())
+  header      String      
+  sectionType SectionType
+  status      Status
+  target      Int
+  limit       Int
+  reviewer    Reviewer
+  
+  organizationId String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("outlines")
+}
+
+model TeamMember {
+  id             Int      @id @default(autoincrement())
+  betterAuthUserId String  @unique 
+  organizationId String  
+  
+  role           String
+
+  createdAt      DateTime @default(now())
+  
+  @@unique([betterAuthUserId, organizationId])
+  @@map("team_members")
+}
+
+enum SectionType {
+  Table_of_Contents @map("Table of Contents") 
+  Executive_Summary @map("Executive Summary")
+  Technical_Approach @map("Technical Approach")
+  Design
+  Capabilities
+  Focus_Document @map("Focus Document")
+  Narrative
+}
+
+enum Status {
+  Pending
+  In_Progress @map("In-Progress")
+  Completed
+}
+
+enum Reviewer {
+  Assim
+  Bini
+  Mami
+}

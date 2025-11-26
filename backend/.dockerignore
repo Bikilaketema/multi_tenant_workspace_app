@@ -1,0 +1,10 @@
+# .dockerignore
+# Ignore dependencies and build output before they are created
+node_modules
+dist
+# Ignore development files
+.git
+.gitignore
+# Ignore Docker-specific files
+Dockerfile
+docker-compose.yml

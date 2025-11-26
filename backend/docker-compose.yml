@@ -1,0 +1,42 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:16-alpine
+    restart: always
+    container_name: ${COMPOSE_PROJECT_NAME}-db
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_DATABASE}
+    ports:
+      - "5432:5432"
+    volumes:
+      - multi_tenant_backend_postgres_data:/var/lib/postgresql/data
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    container_name: ${COMPOSE_PROJECT_NAME}-app
+    environment:
+      DB_URL: postgres://${DB_USERNAME}:${DB_PASSWORD}@db:5432/${DB_DATABASE}
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    command: 
+      - /bin/sh
+      - -c
+      - |
+        # Wait for the database to be fully ready before migrating
+        echo "Waiting for DB..."
+        sleep 5
+        # Run migrations sequentially
+        npm run better-auth:migrate || true
+        npm run prisma:migrate || true
+        # Start the application server
+        npm run start:dev
+
+volumes:
+  multi_tenant_backend_postgres_data:
