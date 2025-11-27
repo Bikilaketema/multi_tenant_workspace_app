@@ -3,6 +3,7 @@ import type { Request } from 'express';
 import { OrganizationService } from './organization.service';
 import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { CreateInvitationDto } from './dto/invitationEmail.dto';
+import { AcceptInvitationDto } from './dto/accept-invitation.dto';
 
 @Controller('organization')
 export class OrganizationController {
@@ -37,7 +38,15 @@ export class OrganizationController {
     @Body() dto: CreateInvitationDto,
     @Req() req: Request
   ) {
-    
+
     return this.organizationService.sendInvitation(dto, req.headers.cookie);
+  }
+
+  @Post(':orgId/accept-invitation')
+  acceptInvitation(
+    @Body() dto: AcceptInvitationDto,
+    @Req() req: Request,
+  ) {
+    return this.organizationService.acceptInvitation(dto, req.headers.cookie);
   }
 }

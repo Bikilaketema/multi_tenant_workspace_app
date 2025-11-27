@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { CreateInvitationDto } from './dto/invitationEmail.dto';
+import { AcceptInvitationDto } from './dto/accept-invitation.dto';
 import { auth } from '../lib/auth';
 
 @Injectable()
@@ -61,6 +62,18 @@ export class OrganizationService {
 
     return response;
   }
+
+  async acceptInvitation(dto: AcceptInvitationDto, cookieHeader?: string) {
+    const response = await auth.api.acceptInvitation({
+      body: {
+        invitationId: dto.invitationId,
+      },
+      headers: cookieHeader ? { cookie: cookieHeader } : undefined,
+    });
+
+    return response;
+  }
+
 
 
 }

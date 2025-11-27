@@ -32,6 +32,7 @@ export async function sendOrganizationInvitation(data: InvitationData) {
   try {
     const info = await transporter.sendMail(mailOptions);
     console.log('Invitation email sent:', info.messageId);
+    console.log("invitation-id", data.inviteLink)
   } catch (err) {
     console.error('Error sending invitation email:', err);
   }
