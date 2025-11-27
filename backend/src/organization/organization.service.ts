@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CreateOrganizationDto } from './dto/create-organization.dto';
+import { CreateInvitationDto } from './dto/invitationEmail.dto';
 import { auth } from '../lib/auth';
 
 @Injectable()
@@ -41,6 +42,21 @@ export class OrganizationService {
     const response = await auth.api.deleteOrganization({
       body: { organizationId },
       headers: cookieHeader ? { cookie: cookieHeader } : {},
+    });
+
+    return response;
+  }
+
+  async sendInvitation(dto: CreateInvitationDto, cookieHeader?: string) {
+    const response = await auth.api.createInvitation({
+      body: {
+        email: dto.email,
+        role: dto.role,
+        organizationId: dto.organizationId,
+       // teamId: dto.teamId,
+        resend: dto.resend ?? false,
+      },
+      headers: cookieHeader ? { cookie: cookieHeader } : undefined,
     });
 
     return response;

@@ -2,6 +2,7 @@ import { betterAuth } from "better-auth";
 import { organization } from "better-auth/plugins";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma";
+import { sendOrganizationInvitation } from "./email";
 
 export const auth = betterAuth({
   url: process.env.BETTER_AUTH_URL,
@@ -12,5 +13,16 @@ export const auth = betterAuth({
   
   emailAndPassword: { enabled: true },
   trustedOrigins: ['http://localhost:3000'],
-  plugins: [organization()],
+  plugins: [organization({
+      async sendInvitationEmail(data) {
+        const inviteLink = `https://example.com/accept-invitation/${data.id}`;
+        sendOrganizationInvitation({
+          email: data.email,
+          invitedByUsername: data.inviter.user.name,
+          invitedByEmail: data.inviter.user.email,
+          teamName: data.organization.name,
+          inviteLink,
+        });
+      },
+    })],
 });

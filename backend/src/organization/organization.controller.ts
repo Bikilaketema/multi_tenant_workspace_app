@@ -2,6 +2,7 @@ import { Controller, Post, Body, Req, Param, Delete, Get } from '@nestjs/common'
 import type { Request } from 'express';
 import { OrganizationService } from './organization.service';
 import { CreateOrganizationDto } from './dto/create-organization.dto';
+import { CreateInvitationDto } from './dto/invitationEmail.dto';
 
 @Controller('organization')
 export class OrganizationController {
@@ -29,5 +30,14 @@ export class OrganizationController {
   @Delete(':id')
   delete(@Param('id') id: string, @Req() req: Request) {
     return this.organizationService.remove(id, req.headers.cookie);
+  }
+
+  @Post(':orgId/invite-member')
+  async sendInvitationEmail(
+    @Body() dto: CreateInvitationDto,
+    @Req() req: Request
+  ) {
+    
+    return this.organizationService.sendInvitation(dto, req.headers.cookie);
   }
 }
