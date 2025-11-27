@@ -19,4 +19,15 @@ export class OrganizationService {
 
     return response;
   }
+
+  async remove(organizationId: string, cookieHeader?: string) {
+    const response = await auth.api.deleteOrganization({
+      body: { organizationId },
+      headers: cookieHeader ? { cookie: cookieHeader } : {},
+    });
+
+    return response;
+  }
+
+
 }
