@@ -1,60 +1,78 @@
-// prisma/schema.prisma
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
-model Outline {
-  id          Int         @id @default(autoincrement())
-  header      String      
-  sectionType SectionType
-  status      Status
-  target      Int
-  limit       Int
-  reviewer    Reviewer
-  
-  organizationId String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+model User {
+  id            String    @id
+  name          String
+  email         String
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  sessions      Session[]
+  accounts      Account[]
 
-  @@map("outlines")
+  @@unique([email])
+  @@map("user")
 }
 
-model TeamMember {
-  id             Int      @id @default(autoincrement())
-  betterAuthUserId String  @unique 
-  organizationId String  
-  
-  role           String
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  createdAt      DateTime @default(now())
-  
-  @@unique([betterAuthUserId, organizationId])
-  @@map("team_members")
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
 }
 
-enum SectionType {
-  Table_of_Contents @map("Table of Contents") 
-  Executive_Summary @map("Executive Summary")
-  Technical_Approach @map("Technical Approach")
-  Design
-  Capabilities
-  Focus_Document @map("Focus Document")
-  Narrative
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
 }
 
-enum Status {
-  Pending
-  In_Progress @map("In-Progress")
-  Completed
-}
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
-enum Reviewer {
-  Assim
-  Bini
-  Mami
+  @@index([identifier])
+  @@map("verification")
 }
