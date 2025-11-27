@@ -91,6 +91,7 @@ model Organization {
   metadata    String?
   members     Member[]
   invitations Invitation[]
+  outlines  Outline[]
 
   @@unique([slug])
   @@map("organization")
@@ -126,3 +127,41 @@ model Invitation {
   @@index([email])
   @@map("invitation")
 }
+
+model Outline {
+  id             String   @id @default(cuid())
+  organizationId String
+  header         String
+  sectionType    SectionType
+  status         Status
+  target         Int
+  limit          Int
+  reviewer       Reviewer
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization   Organization @relation(fields: [organizationId], references: [id])
+}
+
+enum SectionType {
+  TableOfContents
+  ExecutiveSummary
+  TechnicalApproach
+  Design
+  Capabilities
+  FocusDocument
+  Narrative
+}
+
+enum Status {
+  Pending
+  InProgress
+  Completed
+}
+
+enum Reviewer {
+  Assim
+  Bini
+  Mami
+}
+
