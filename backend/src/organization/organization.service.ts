@@ -20,6 +20,14 @@ export class OrganizationService {
     return response;
   }
 
+  async list(cookieHeader?: string) {
+    const response = await auth.api.listOrganizations({
+      headers: cookieHeader ? { cookie: cookieHeader } : {},
+    });
+
+    return response;
+  }
+
   async remove(organizationId: string, cookieHeader?: string) {
     const response = await auth.api.deleteOrganization({
       body: { organizationId },
