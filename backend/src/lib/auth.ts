@@ -1,4 +1,5 @@
 import { betterAuth } from "better-auth";
+import { organization } from "better-auth/plugins";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma";
 
@@ -11,4 +12,5 @@ export const auth = betterAuth({
   
   emailAndPassword: { enabled: true },
   trustedOrigins: ['http://localhost:3000'],
+  plugins: [organization()],
 });
