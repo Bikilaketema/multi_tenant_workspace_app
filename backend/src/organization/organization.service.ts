@@ -28,6 +28,15 @@ export class OrganizationService {
     return response;
   }
 
+  async getMembersList(organizationId: string, cookieHeader?: string) {
+    const response = await auth.api.getFullOrganization({
+      query: { organizationId },
+      headers: cookieHeader ? { cookie: cookieHeader } : {},
+    });
+
+    return response?.members;
+  }
+
   async remove(organizationId: string, cookieHeader?: string) {
     const response = await auth.api.deleteOrganization({
       body: { organizationId },

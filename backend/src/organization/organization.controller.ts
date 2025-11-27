@@ -18,6 +18,14 @@ export class OrganizationController {
     return this.organizationService.list(req.headers.cookie);
   }
 
+  @Get(':orgId/')
+  getMembers(
+    @Param('orgId') orgId: string,
+    @Req() req: Request,
+  ) {
+    return this.organizationService.getMembersList(orgId, req.headers.cookie);
+  }
+
   @Delete(':id')
   delete(@Param('id') id: string, @Req() req: Request) {
     return this.organizationService.remove(id, req.headers.cookie);
