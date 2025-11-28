@@ -17,7 +17,7 @@ export class OrganizationController {
 
   @Get()
   list(@Req() req: Request) {
-    return this.organizationService.list(req.headers.cookie);
+    return this.organizationService.list(req);
   }
 
   @Get(':orgId/')

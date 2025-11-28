@@ -28,7 +28,7 @@ export async function createOrganization(data: {
 }
 
 export async function deleteOrganization(organizationId: string) {
-  const res = await fetch(`http://localhost:3000/organization/${organizationId}`, {
+  const res = await fetch(`http://localhost:3000/api/organization/${organizationId}`, {
     method: 'DELETE',
     credentials: 'include',
   });

@@ -2,7 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { CreateInvitationDto } from './dto/invitationEmail.dto';
 import { AcceptInvitationDto } from './dto/accept-invitation.dto';
+import { PrismaClient } from '../generated/prisma/client';
 import { auth } from '../lib/auth';
+import { fromNodeHeaders } from 'better-auth/node';
+
+const prisma = new PrismaClient();
 
 @Injectable()
 export class OrganizationService {
@@ -22,13 +26,47 @@ export class OrganizationService {
     return response;
   }
 
-  async list(cookieHeader?: string) {
-    const response = await auth.api.listOrganizations({
-      headers: cookieHeader ? { cookie: cookieHeader } : {},
+  async list(req) {
+
+    const session = await auth.api.getSession({
+      headers: fromNodeHeaders(req.headers)
     });
 
-    return response;
+    if (!session?.user?.id) {
+    throw new Error("User not authenticated");
+    }
+
+  const userId = session.user.id;
+
+    const organizations = await prisma.organization.findMany({
+      where: {
+        members: {
+          some: {
+            userId: userId,
+          },
+        },
+      },
+      include: {
+        members: {
+          where: {
+            userId: userId,
+          },
+          select: {
+            role: true,
+          },
+        },
+      },
+    });
+
+    return organizations.map((org) => ({
+      id: org.id,
+      name: org.name,
+      slug: org.slug,
+      logo: org.logo,
+      role: org.members[0]?.role || "member"
+    }));
   }
+
 
   async getMembersList(organizationId: string, cookieHeader?: string) {
     const response = await auth.api.getFullOrganization({
