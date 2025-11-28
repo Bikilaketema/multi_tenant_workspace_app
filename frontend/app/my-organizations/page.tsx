@@ -1,0 +1,225 @@
+"use client"
+
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { Building2, Plus, Mail, Crown } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useOrganizations, useCreateOrganization, useDeleteOrganization } from "@/hooks/useOrganizations"
+import type { Invitation } from "@/lib/types/types"
+import { OrganizationCard } from "@/components/organization-card"
+
+export default function OrganizationsPage() {
+  const router = useRouter()
+  const { data: orgs, isLoading, isError, refetch } = useOrganizations()
+  const createOrgMutation = useCreateOrganization()
+  const deleteOrgMutation = useDeleteOrganization()
+
+  const [createDialogOpen, setCreateDialogOpen] = useState(false)
+  const [newOrgName, setNewOrgName] = useState("")
+  const [newOrgSlug, setNewOrgSlug] = useState("")
+  const [invitations, setInvitations] = useState<Invitation[]>([])
+
+  const handleCreateOrganization = async () => {
+    if (!newOrgName.trim()) return
+    try {
+      await createOrgMutation.mutateAsync({
+        name: newOrgName,
+        slug: newOrgSlug,
+      })
+      setNewOrgName("")
+      setCreateDialogOpen(false)
+    } catch (err) {
+      console.error("Failed to create organization:", err)
+    }
+  }
+
+  const handleDeleteOrganization = async (orgId: string) => {
+    try {
+      await deleteOrgMutation.mutateAsync(orgId)
+    } catch (err) {
+      console.error("Failed to delete organization:", err)
+    }
+  }
+
+  const getRoleBadge = (role: string) => {
+    switch (role) {
+      case "owner":
+        return (
+          <Badge variant="outline" className="gap-1 border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+            <Crown className="h-3 w-3" />
+            Owner
+          </Badge>
+        )
+      case "admin":
+        return (
+          <Badge variant="outline" className="gap-1 border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+            Admin
+          </Badge>
+        )
+      default:
+        return <Badge variant="outline" className="gap-1">Member</Badge>
+    }
+  }
+
+  if (isLoading) return <div>Loading organizations...</div>
+  if (isError) return <div>Failed to load organizations.</div>
+
+  return (
+    <div className="min-h-screen bg-muted/30">
+      <div className="mx-auto max-w-5xl px-4 py-8">
+        {/* Header */}
+        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Organizations</h1>
+            <p className="text-muted-foreground">Manage your organizations and team workspaces</p>
+          </div>
+
+          <div className="flex gap-3">
+            {/* Invitations button */}
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="gap-2 bg-transparent">
+                  <Mail className="h-4 w-4" />
+                  Invitations
+                  {invitations.length > 0 && (
+                    <Badge className="ml-1 h-5 w-5 rounded-full p-0 text-xs">{invitations.length}</Badge>
+                  )}
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-lg">
+                <DialogHeader>
+                  <DialogTitle>Pending Invitations</DialogTitle>
+                  <DialogDescription>You have been invited to join the following organizations</DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  {invitations.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-8 text-center">
+                      <Mail className="mb-3 h-10 w-10 text-muted-foreground/50" />
+                      <p className="text-sm text-muted-foreground">No pending invitations</p>
+                    </div>
+                  ) : (
+                    invitations.map((invitation) => (
+                      <Card key={invitation.id}>
+                        <CardContent className="flex items-center justify-between p-4">
+                          <div className="flex items-center gap-3">
+                            <Avatar className="h-10 w-10">
+                              <AvatarFallback className="bg-primary/10 text-primary">
+                                {invitation.organizationName.charAt(0)}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <p className="font-medium">{invitation.organizationName}</p>
+                              <p className="text-xs text-muted-foreground">
+                                Invited by {invitation.invitedBy} as {invitation.role}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button size="sm" variant="outline">Decline</Button>
+                            <Button size="sm">Accept</Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))
+                  )}
+                </div>
+              </DialogContent>
+            </Dialog>
+
+            {/* Create Organization */}
+            <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="gap-2">
+                  <Plus className="h-4 w-4" />
+                  Create Organization
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Create Organization</DialogTitle>
+                  <DialogDescription>Create a new organization to collaborate with your team</DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="org-name">Organization Name</Label>
+                    <Input
+                      id="org-name"
+                      placeholder="Enter organization name"
+                      value={newOrgName}
+                      onChange={(e) => setNewOrgName(e.target.value)}
+                    />
+                  </div>
+                    <div className="space-y-2">
+                    <Label htmlFor="org-name">Organization Slug</Label>
+                    <Input
+                      id="org-name"
+                      placeholder="Enter organization slug"
+                      value={newOrgSlug}
+                      onChange={(e) => setNewOrgSlug(e.target.value)}
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setCreateDialogOpen(false)}>Cancel</Button>
+                  <Button onClick={handleCreateOrganization} disabled={!newOrgName.trim()}>Create</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
+        </div>
+
+        {/* Organizations List */}
+        <Tabs defaultValue="all" className="space-y-6">
+          <TabsList>
+            <TabsTrigger value="all">All ({orgs?.length || 0})</TabsTrigger>
+            <TabsTrigger value="owned">{`Owned (${orgs?.filter(o => o.role === "owner").length || 0})`}</TabsTrigger>
+            <TabsTrigger value="member">{`Member (${orgs?.filter(o => o.role !== "owner").length || 0})`}</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="all" className="space-y-4">
+            {orgs?.length === 0 ? (
+              <Card>
+                <CardContent className="flex flex-col items-center justify-center py-16">
+                  <Building2 className="mb-4 h-12 w-12 text-muted-foreground/50" />
+                  <h3 className="mb-2 text-lg font-medium">No organizations yet</h3>
+                  <p className="mb-4 text-center text-sm text-muted-foreground">
+                    Create your first organization or accept an invitation to get started
+                  </p>
+                  <Button onClick={() => setCreateDialogOpen(true)} className="gap-2">
+                    <Plus className="h-4 w-4" />
+                    Create Organization
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              orgs?.map((org: any) => (
+                <OrganizationCard
+                  key={org.id}
+                  organization={org}
+                  getRoleBadge={getRoleBadge}
+                  onDelete={handleDeleteOrganization}
+                  onLeave={() => {}}
+                />
+              ))
+            )}
+          </TabsContent>
+        </Tabs>
+      </div>
+    </div>
+  )
+}
