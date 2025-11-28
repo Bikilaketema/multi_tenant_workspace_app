@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { auth } from '../lib/auth';
 import { fromNodeHeaders } from 'better-auth/node';
 import { PrismaClient } from '../generated/prisma/client';
+import { AcceptInvitationDto } from './dto/accept-invitation.dto';
 
 const prisma = new PrismaClient();
 
@@ -43,4 +44,15 @@ export class UserService {
       inviterEmail: invite.user.email,
     }));
   }
+
+  async acceptInvitation(dto: AcceptInvitationDto, cookieHeader?: string) {
+      const response = await auth.api.acceptInvitation({
+        body: {
+          invitationId: dto.invitationId,
+        },
+        headers: cookieHeader ? { cookie: cookieHeader } : undefined,
+      });
+
+      return response;
+    }
 }
