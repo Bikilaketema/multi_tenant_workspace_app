@@ -22,7 +22,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useOrganizations, useCreateOrganization, useDeleteOrganization } from "@/hooks/useOrganizations"
 import type { Invitation } from "@/lib/types/types"
 import { OrganizationCard } from "@/components/organization-card"
-import { useMyInvitations, useAcceptInvitation } from "@/hooks/useUser"
+import { useMyInvitations, useAcceptInvitation, useRejectInvitation } from "@/hooks/useUser"
 
 export default function OrganizationsPage() {
   const router = useRouter()
@@ -30,6 +30,7 @@ export default function OrganizationsPage() {
   const createOrgMutation = useCreateOrganization()
   const deleteOrgMutation = useDeleteOrganization()
   const acceptInvitationMutation = useAcceptInvitation()
+  const rejectInvitationMutation = useRejectInvitation()
 
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
   const [newOrgName, setNewOrgName] = useState("")
@@ -61,14 +62,24 @@ export default function OrganizationsPage() {
     }
   }
 
-const handleAcceptInvitation = async (invitationId: string, organizationId: string) => {
-  await acceptInvitationMutation.mutateAsync(
-    { organizationId, data: { invitationId } },
-    {
-      onSuccess: () => setInvitationDialogOpen(false),
-    }
-  );
-};
+  const handleRejectInvitation = async (invitationId: string, organizationId: string) => {
+    await rejectInvitationMutation.mutateAsync(
+      { organizationId, data: { invitationId } },
+      {
+        onSuccess: () => setInvitationDialogOpen(false),
+      }
+    );
+  }
+
+
+  const handleAcceptInvitation = async (invitationId: string, organizationId: string) => {
+    await acceptInvitationMutation.mutateAsync(
+      { organizationId, data: { invitationId } },
+      {
+        onSuccess: () => setInvitationDialogOpen(false),
+      }
+    );
+  };
 
   const getRoleBadge = (role: string) => {
     switch (role) {
@@ -144,7 +155,7 @@ const handleAcceptInvitation = async (invitationId: string, organizationId: stri
                             </div>
                           </div>
                           <div className="flex gap-2">
-                            <Button size="sm" variant="outline">Decline</Button>
+                            <Button size="sm" variant="outline" onClick={() => handleRejectInvitation(invitation.id, invitation.organizationId)}>Decline</Button>
                             <Button size="sm" onClick={() => handleAcceptInvitation(invitation.id, invitation.organizationId)}>Accept</Button>
                           </div>
                         </CardContent>

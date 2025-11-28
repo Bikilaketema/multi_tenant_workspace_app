@@ -20,3 +20,15 @@ export function useAcceptInvitation() {
     },
   });
 }
+
+export function useRejectInvitation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ organizationId, data }: { organizationId: string; data: { invitationId: string } }) =>
+      api.rejectInvitation(organizationId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['my-invitations'] });
+      queryClient.invalidateQueries({ queryKey: ['organizations'] });
+    },
+  });
+}

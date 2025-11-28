@@ -28,3 +28,22 @@ export async function acceptInvitation(organizationId: string, data: {
 
   return res.json();
 }
+
+export async function rejectInvitation(organizationId: string, data: {
+    invitationId: string;
+}) {
+  const res = await fetch(`http://localhost:3000/api/user/${organizationId}/reject-invitation`, {
+    method: 'POST',
+    credentials: 'include',
+    body: JSON.stringify(data),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error('Failed to reject invitation');
+  }
+
+  return res.json();
+}
