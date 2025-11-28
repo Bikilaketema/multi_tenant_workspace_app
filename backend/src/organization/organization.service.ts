@@ -63,7 +63,8 @@ export class OrganizationService {
       name: org.name,
       slug: org.slug,
       logo: org.logo,
-      role: org.members[0]?.role || "member"
+      role: org.members[0]?.role || "member",
+      totalMembers: org.members.length
     }));
   }
 
