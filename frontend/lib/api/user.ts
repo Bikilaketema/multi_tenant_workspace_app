@@ -13,7 +13,7 @@ export async function getMyInvitations() {
 export async function acceptInvitation(organizationId: string, data: {
     invitationId: string;
 }) {
-  const res = await fetch(`http://localhost:3000/api/organization/${organizationId}/accept-invitation`, {
+  const res = await fetch(`http://localhost:3000/api/user/${organizationId}/accept-invitation`, {
     method: 'POST',
     credentials: 'include',
     body: JSON.stringify(data),
