@@ -3,7 +3,8 @@ import type { Request } from 'express';
 import { OrganizationService } from './organization.service';
 import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { CreateInvitationDto } from './dto/invitationEmail.dto';
-import { AcceptInvitationDto } from '../user/dto/accept-invitation.dto';
+import { RemoveMemberDto } from './dto/remove-member.dto';
+
 
 @Controller('organization')
 export class OrganizationController {
@@ -40,5 +41,13 @@ export class OrganizationController {
   ) {
 
     return this.organizationService.sendInvitation(dto, req.headers.cookie);
+  }
+
+  @Delete(':orgId/remove-member')
+  async removeMember(
+    @Body() dto: RemoveMemberDto,
+    @Req() req: Request
+  ) {
+    return this.organizationService.removeMemberFromOrg(dto, req.headers.cookie);
   }
 }

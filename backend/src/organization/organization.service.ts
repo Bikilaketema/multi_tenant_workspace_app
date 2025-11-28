@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { CreateInvitationDto } from './dto/invitationEmail.dto';
-import { AcceptInvitationDto } from '../user/dto/accept-invitation.dto';
+import { RemoveMemberDto } from './dto/remove-member.dto';
 import { PrismaClient } from '../generated/prisma/client';
 import { auth } from '../lib/auth';
 import { fromNodeHeaders } from 'better-auth/node';
@@ -102,7 +102,17 @@ export class OrganizationService {
     return response;
   }
 
+    async removeMemberFromOrg(dto: RemoveMemberDto, cookieHeader?: string) {
+      const response = await auth.api.removeMember({
+        body: { 
+          memberIdOrEmail: dto.email,
+          organizationId: dto.organizationId
+         },
+        headers: cookieHeader ? { cookie: cookieHeader } : {},
+      });
 
+      return response;
+    }
 
 
 
