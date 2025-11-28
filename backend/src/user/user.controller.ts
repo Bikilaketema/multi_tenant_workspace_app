@@ -19,4 +19,12 @@ export class UserController {
   ) {
     return this.userService.acceptInvitation(dto, req.headers.cookie);
   }
+
+  @Post(':orgId/reject-invitation')
+  rejectInvitation(
+    @Body() dto: AcceptInvitationDto,
+    @Req() req: Request,
+  ) {
+    return this.userService.rejectInvitation(dto, req.headers.cookie);
+  }
 }

@@ -55,4 +55,15 @@ export class UserService {
 
       return response;
     }
+
+    async rejectInvitation(dto: AcceptInvitationDto, cookieHeader?: string) {
+      const response = await auth.api.rejectInvitation({
+        body: {
+          invitationId: dto.invitationId,
+        },
+        headers: cookieHeader ? { cookie: cookieHeader } : undefined,
+      });
+
+      return response;
+    }
 }
