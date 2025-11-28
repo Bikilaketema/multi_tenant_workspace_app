@@ -22,6 +22,9 @@ import {
   MoreHorizontal,
   Plus,
   Settings2,
+  CheckCircle,
+  Loader2,
+  Clock
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -38,20 +41,25 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { SectionSheet } from "@/components/section-sheet"
-import { type Section, initialData, reviewers } from "@/lib/table-data"
+import { useOutlines, useCreateOutline, useDeleteOutline, useEditOutline } from "@/hooks/useOutlines"
+import { useParams } from "next/navigation"
+import { Outline } from "@/lib/types/types"
 
 export function DataTable() {
-  const [data, setData] = React.useState<Section[]>(initialData)
+  const { org_id } = useParams() as { org_id: string };
+  const { data: outlines = [], isLoading, refetch } = useOutlines(org_id);
+  const createOutline = useCreateOutline(org_id);
+  const deleteOutline = useDeleteOutline(org_id);
+
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = React.useState({})
   const [activeTab, setActiveTab] = React.useState("outline")
 
-  // Sheet state
   const [sheetOpen, setSheetOpen] = React.useState(false)
   const [sheetMode, setSheetMode] = React.useState<"add" | "edit">("add")
-  const [selectedSection, setSelectedSection] = React.useState<Section | null>(null)
+  const [selectedSection, setSelectedSection] = React.useState<Outline | null>(null)
 
   const openAddSheet = () => {
     setSheetMode("add")
@@ -59,32 +67,46 @@ export function DataTable() {
     setSheetOpen(true)
   }
 
-  const openEditSheet = (section: Section) => {
+  const openEditSheet = (section: Outline) => {
     setSheetMode("edit")
     setSelectedSection(section)
     setSheetOpen(true)
   }
 
-  const handleSave = (sectionData: Omit<Section, "id"> & { id?: string }) => {
+    const editOutline = useEditOutline(org_id);
+
+
+  const handleSave = async (sectionData: Omit<Outline, "id"> & { id?: string }) => {
     if (sheetMode === "add") {
-      const newSection: Section = {
-        ...sectionData,
-        id: Date.now().toString(),
-      } as Section
-      setData([...data, newSection])
-    } else if (sectionData.id) {
-      setData(data.map((s) => (s.id === sectionData.id ? ({ ...s, ...sectionData } as Section) : s)))
+      await createOutline.mutateAsync(sectionData)
+    } else if (sheetMode === "edit" && sectionData.id) {
+      await editOutline.mutateAsync({
+        outline_id: sectionData.id,
+        updates: sectionData,
+      })
     }
+
+    await refetch()
+    setSheetOpen(false)
   }
 
-  const handleDelete = () => {
-    if (selectedSection) {
-      setData(data.filter((s) => s.id !== selectedSection.id))
-      setSheetOpen(false)
-    }
+
+  const handleDelete = async (section: Outline) => {
+    //if (!selectedSection) return
+    await deleteOutline.mutateAsync(section.id)
+    await refetch()
+    setSheetOpen(false)
   }
 
-  const columns: ColumnDef<Section>[] = [
+  const handleDeleteSheet = async () => {
+  if (!selectedSection) return
+  await deleteOutline.mutateAsync(selectedSection.id)
+  await refetch()
+  setSheetOpen(false)
+}
+
+
+  const columns: ColumnDef<Outline>[] = [
     {
       id: "drag",
       header: () => null,
@@ -142,10 +164,18 @@ export function DataTable() {
       cell: ({ row }) => {
         const status = row.getValue("status") as string
         return (
-          <div className="flex items-center gap-2">
-            <span className={`h-2 w-2 rounded-full ${status === "Done" ? "bg-green-500" : "bg-muted-foreground/40"}`} />
-            <span>{status}</span>
-          </div>
+        <div className="flex items-center gap-2">
+          {status === "Completed" ? (
+            <CheckCircle className="h-4 w-4 text-green-500" />
+          ) : status === "InProgress" ? (
+            <Loader2 className="h-4 w-4 text-blue-500 animate-spin" />
+          ) : status === "Pending" ? (
+            <Clock className="h-4 w-4 text-yellow-500" />
+          ) : (
+            <span className="h-2 w-2 rounded-full bg-muted-foreground/40" />
+          )}
+          <span>{status}</span>
+        </div>
         )
       },
     },
@@ -162,30 +192,7 @@ export function DataTable() {
     {
       accessorKey: "reviewer",
       header: "Reviewer",
-      cell: ({ row }) => {
-        const reviewer = row.getValue("reviewer") as string
-        if (!reviewer) {
-          return (
-            <Select
-              onValueChange={(value) => {
-                setData(data.map((s) => (s.id === row.original.id ? { ...s, reviewer: value } : s)))
-              }}
-            >
-              <SelectTrigger className="w-[140px] h-8">
-                <SelectValue placeholder="Assign review..." />
-              </SelectTrigger>
-              <SelectContent>
-                {reviewers.map((r) => (
-                  <SelectItem key={r} value={r}>
-                    {r}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )
-        }
-        return <span>{reviewer}</span>
-      },
+      cell: ({ row }) => <div className="text-center">{row.getValue("reviewer")}</div>,
     },
     {
       id: "actions",
@@ -203,7 +210,7 @@ export function DataTable() {
               <DropdownMenuItem onClick={() => openEditSheet(row.original)}>Edit</DropdownMenuItem>
               <DropdownMenuItem
                 className="text-destructive"
-                onClick={() => setData(data.filter((s) => s.id !== row.original.id))}
+                onClick={() => handleDelete(row.original)}
               >
                 Delete
               </DropdownMenuItem>
@@ -215,7 +222,7 @@ export function DataTable() {
   ]
 
   const table = useReactTable({
-    data,
+    data: outlines,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -401,7 +408,7 @@ export function DataTable() {
         section={selectedSection}
         mode={sheetMode}
         onSave={handleSave}
-        onDelete={handleDelete}
+        onDelete={handleDeleteSheet}
       />
     </div>
   )

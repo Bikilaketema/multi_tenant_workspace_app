@@ -13,3 +13,16 @@ export interface Invitation {
   role: "admin" | "member"
   invitedAt: string
 }
+
+export interface Outline {
+  id: string
+  header: string
+  sectionType: string
+  status: string
+  target: number
+  limit: number
+  reviewer: string
+}
+
+export type SectionType = "TableOfContents"| "ExecutiveSummary" |"TechnicalApproach" | "Design" | "Capabilities" | "FocusDocument" | "Narrative"
+export type Status = "Completed" | "InProgress" | "Pending"

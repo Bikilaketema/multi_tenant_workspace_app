@@ -6,21 +6,21 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { type Section, type SectionType, type Status, sectionTypes, reviewers } from "@/lib/table-data"
+import { Outline, SectionType, Status } from "@/lib/types/types"
 
 interface SectionSheetProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  section?: Section | null
+  section?: Outline | null
   mode: "add" | "edit"
-  onSave: (section: Omit<Section, "id"> & { id?: string }) => void
+  onSave: (section: Omit<Outline, "id"> & { id?: string }) => void
   onDelete?: () => void
 }
 
 export function SectionSheet({ open, onOpenChange, section, mode, onSave, onDelete }: SectionSheetProps) {
   const [header, setHeader] = useState("")
-  const [sectionType, setSectionType] = useState<SectionType>("Narrative")
-  const [status, setStatus] = useState<Status>("In Process")
+  const [sectionType, setSectionType] = useState("Narrative")
+  const [status, setStatus] = useState("InProgress")
   const [target, setTarget] = useState(0)
   const [limit, setLimit] = useState(0)
   const [reviewer, setReviewer] = useState("None")
@@ -36,7 +36,7 @@ export function SectionSheet({ open, onOpenChange, section, mode, onSave, onDele
     } else if (mode === "add") {
       setHeader("")
       setSectionType("Narrative")
-      setStatus("In Process")
+      setStatus("InProgress")
       setTarget(0)
       setLimit(0)
       setReviewer("None")
@@ -82,12 +82,15 @@ export function SectionSheet({ open, onOpenChange, section, mode, onSave, onDele
                 <SelectValue placeholder="Select type" />
               </SelectTrigger>
               <SelectContent>
-                {sectionTypes.map((type) => (
-                  <SelectItem key={type} value={type}>
-                    {type}
-                  </SelectItem>
-                ))}
+                <SelectItem value="TableOfContents">Table of Contents</SelectItem>
+                <SelectItem value="ExecutiveSummary">Executive Summary</SelectItem>
+                <SelectItem value="TechnicalApproach">Technical Approach</SelectItem>
+                <SelectItem value="Design">Design</SelectItem>
+                <SelectItem value="Capabilities">Capabilities</SelectItem>
+                <SelectItem value="FocusDocument">Focus Document</SelectItem>
+                <SelectItem value="Narrative">Narrative</SelectItem>
               </SelectContent>
+
             </Select>
           </div>
           <div className="grid gap-2">
@@ -97,8 +100,9 @@ export function SectionSheet({ open, onOpenChange, section, mode, onSave, onDele
                 <SelectValue placeholder="Select status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="In Process">In Process</SelectItem>
-                <SelectItem value="Done">Done</SelectItem>
+                <SelectItem value="InProgress">InProgress</SelectItem>
+                <SelectItem value="Pending">Pending</SelectItem>
+                <SelectItem value="Completed">Completed</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -120,11 +124,9 @@ export function SectionSheet({ open, onOpenChange, section, mode, onSave, onDele
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="None">Assign reviewer...</SelectItem>
-                {reviewers.map((r) => (
-                  <SelectItem key={r} value={r}>
-                    {r}
-                  </SelectItem>
-                ))}
+                <SelectItem value="Assim">Assim</SelectItem>
+                <SelectItem value="Bini">Bini</SelectItem>
+                <SelectItem value="Mami">Mami</SelectItem>
               </SelectContent>
             </Select>
           </div>
