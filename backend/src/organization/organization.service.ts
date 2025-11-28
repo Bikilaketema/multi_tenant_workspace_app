@@ -70,7 +70,7 @@ export class OrganizationService {
 
 
   async getMembersList(organizationId: string, cookieHeader?: string) {
-    const response = await auth.api.getFullOrganization({
+    const response = await auth.api.listMembers({
       query: { organizationId },
       headers: cookieHeader ? { cookie: cookieHeader } : {},
     });
