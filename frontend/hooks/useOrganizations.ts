@@ -43,3 +43,15 @@ export function useOrganizationMembers(organizationId: string) {
     queryFn: () => api.fetchOrganizationMembers(organizationId),
   });
 }
+
+export function useRemoveOrganizationMember() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: { organizationId: string; email: string }) =>
+      api.removeUserFromOrg(data.organizationId, data),
+    onSuccess: (_, data) => {
+      queryClient.invalidateQueries({ queryKey: ['organization', data.organizationId, 'members'] });
+    },
+  });
+}

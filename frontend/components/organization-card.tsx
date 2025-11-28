@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Crown, ExternalLink, MoreHorizontal, Settings, Trash2, Users, Plus } from "lucide-react"
-import { useInviteUserToOrg, useOrganizationMembers } from "@/hooks/useOrganizations"
+import { useInviteUserToOrg, useOrganizationMembers, useRemoveOrganizationMember } from "@/hooks/useOrganizations"
 import { useRouter } from "next/navigation"
 
 export function OrganizationCard({
@@ -40,6 +40,9 @@ export function OrganizationCard({
 
   const { data: members, isLoading: membersLoading } = useOrganizationMembers(organization.id);
   const [membersDialogOpen, setMembersDialogOpen] = useState(false);
+
+  const removeMember = useRemoveOrganizationMember()
+
 
 
   const handleOpen = () => {
@@ -101,32 +104,53 @@ return (
                   </Button>
                 </DialogTrigger>
 
-                <DialogContent className="sm:max-w-[450px]">
-                  <DialogHeader>
-                    <DialogTitle>Organization Members</DialogTitle>
-                    <DialogDescription>People currently in this organization</DialogDescription>
-                  </DialogHeader>
+               <DialogContent className="sm:max-w-[450px]">
+                <DialogHeader>
+                  <DialogTitle>Organization Members</DialogTitle>
+                  <DialogDescription>People currently in this organization</DialogDescription>
+                </DialogHeader>
 
-                  {membersLoading ? (
-                    <p className="text-sm text-muted-foreground mt-2">Loading members...</p>
-                  ) : members?.length ? (
-                    <div className="mt-4 space-y-3">
-                      {members.map((member: any) => (
-                        <div key={member.id} className="flex items-center gap-3 p-2 border rounded-md">
+                {membersLoading ? (
+                  <p className="text-sm text-muted-foreground mt-2">Loading members...</p>
+                ) : members?.length ? (
+                  <div className="mt-4 space-y-3">
+                    {members.map((member: any) => (
+                      <div
+                        key={member.id}
+                        className="flex items-center justify-between gap-3 p-2 border rounded-md"
+                      >
+                        <div className="flex items-center gap-3">
                           <Avatar className="h-8 w-8">
-                            <AvatarFallback>{member.user.email?.charAt(0).toUpperCase()}</AvatarFallback>
+                            <AvatarFallback>
+                              {member.user.name?.charAt(0).toUpperCase()}
+                            </AvatarFallback>
                           </Avatar>
+
                           <div className="flex flex-col">
                             <span className="font-medium">{member.user.name}</span>
-                            <span className="text-xs text-muted-foreground capitalize">{member.role}</span>
+                            <span className="text-xs text-muted-foreground capitalize">
+                              {member.role}
+                            </span>
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-sm text-muted-foreground mt-2">No members found.</p>
-                  )}
-                </DialogContent>
+
+                        {organization.role === "owner" && member.role !== "owner" && (
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            className="text-xs"
+                            onClick={() => removeMember.mutate({ organizationId: organization.id, email: member.user.email })}
+                          >
+                            Remove
+                          </Button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground mt-2">No members found.</p>
+                )}
+              </DialogContent>
               </Dialog>
                ) : null }
 

@@ -69,3 +69,21 @@ export async function inviteUserToOrg(organizationId: string, data: {
 
   return res.json()
 }
+
+export async function removeUserFromOrg(organizationId: string, data: { 
+  email: string;
+  organizationId: string;
+}) {
+  const res = await fetch(`http://localhost:3000/api/organization/${organizationId}/remove-member`, {
+    method: 'DELETE',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) {
+    throw new Error('Failed to remove the user from the organization!');
+  }
+
+  return res.json();
+}
