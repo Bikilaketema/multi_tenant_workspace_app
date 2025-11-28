@@ -60,12 +60,12 @@ export function SectionSheet({ open, onOpenChange, section, mode, onSave, onDele
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="sm:max-w-md">
         <SheetHeader>
-          <SheetTitle>{mode === "add" ? "Add Section" : "Edit Section"}</SheetTitle>
+          <SheetTitle>{mode === "add" ? "Add Outline" : "Edit Outline"}</SheetTitle>
           <SheetDescription>
-            {mode === "add" ? "Create a new section for your document." : "Make changes to this section."}
+            {mode === "add" ? "Create a new outline for your document." : "Make changes to this outline."}
           </SheetDescription>
         </SheetHeader>
-        <div className="grid gap-4 py-4">
+        <div className="grid gap-4 py-4 p-4">
           <div className="grid gap-2">
             <Label htmlFor="header">Header</Label>
             <Input
@@ -132,15 +132,15 @@ export function SectionSheet({ open, onOpenChange, section, mode, onSave, onDele
           </div>
         </div>
         <SheetFooter className="flex gap-2 sm:justify-between">
-          {mode === "edit" && onDelete && (
+          <div className="flex gap-2 ml-auto w-full flex flex-col">
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
+              Cancel
+            </Button>
+            {mode === "edit" && onDelete && (
             <Button variant="destructive" onClick={onDelete}>
               Delete
             </Button>
           )}
-          <div className="flex gap-2 ml-auto">
-            <Button variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
-            </Button>
             <Button onClick={handleSave}>{mode === "add" ? "Add Section" : "Save Changes"}</Button>
           </div>
         </SheetFooter>
