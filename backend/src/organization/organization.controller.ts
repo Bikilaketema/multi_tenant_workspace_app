@@ -20,7 +20,7 @@ export class OrganizationController {
     return this.organizationService.list(req);
   }
 
-  @Get(':orgId/')
+  @Get(':orgId/members')
   getMembers(
     @Param('orgId') orgId: string,
     @Req() req: Request,
