@@ -37,3 +37,25 @@ export async function deleteOrganization(organizationId: string) {
   }
   return res.json();
 }
+
+export async function inviteUserToOrg(organizationId: string, data: {
+  email: string;
+  role: string;
+  organizationId: string;
+  resend: boolean;
+ } ){
+
+  const res = await fetch(`http://localhost:3000/api/organization/${organizationId}/invite-member`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+
+
+  if (!res.ok) {
+    throw new Error('Failed to invite the user!')
+  }
+
+  return res.json()
+}

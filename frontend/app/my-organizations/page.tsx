@@ -22,17 +22,22 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useOrganizations, useCreateOrganization, useDeleteOrganization } from "@/hooks/useOrganizations"
 import type { Invitation } from "@/lib/types/types"
 import { OrganizationCard } from "@/components/organization-card"
+import { useMyInvitations, useAcceptInvitation } from "@/hooks/useUser"
 
 export default function OrganizationsPage() {
   const router = useRouter()
   const { data: orgs, isLoading, isError, refetch } = useOrganizations()
   const createOrgMutation = useCreateOrganization()
   const deleteOrgMutation = useDeleteOrganization()
+  const acceptInvitationMutation = useAcceptInvitation()
 
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
   const [newOrgName, setNewOrgName] = useState("")
   const [newOrgSlug, setNewOrgSlug] = useState("")
-  const [invitations, setInvitations] = useState<Invitation[]>([])
+  const [invitationDialogOpen, setInvitationDialogOpen] = useState(false);
+
+
+  const {data: invitations = [] } = useMyInvitations();
 
   const handleCreateOrganization = async () => {
     if (!newOrgName.trim()) return
@@ -55,6 +60,15 @@ export default function OrganizationsPage() {
       console.error("Failed to delete organization:", err)
     }
   }
+
+const handleAcceptInvitation = async (invitationId: string, organizationId: string) => {
+  await acceptInvitationMutation.mutateAsync(
+    { organizationId, data: { invitationId } },
+    {
+      onSuccess: () => setInvitationDialogOpen(false),
+    }
+  );
+};
 
   const getRoleBadge = (role: string) => {
     switch (role) {
@@ -91,7 +105,8 @@ export default function OrganizationsPage() {
 
           <div className="flex gap-3">
             {/* Invitations button */}
-            <Dialog>
+           <Dialog open={invitationDialogOpen} onOpenChange={setInvitationDialogOpen}>
+
               <DialogTrigger asChild>
                 <Button variant="outline" className="gap-2 bg-transparent">
                   <Mail className="h-4 w-4" />
@@ -119,19 +134,18 @@ export default function OrganizationsPage() {
                           <div className="flex items-center gap-3">
                             <Avatar className="h-10 w-10">
                               <AvatarFallback className="bg-primary/10 text-primary">
-                                {invitation.organizationName.charAt(0)}
+                                {invitation.organizationName?.charAt(0)}
                               </AvatarFallback>
                             </Avatar>
                             <div>
-                              <p className="font-medium">{invitation.organizationName}</p>
                               <p className="text-xs text-muted-foreground">
-                                Invited by {invitation.invitedBy} as {invitation.role}
+                                Invited to {invitation.organizationName} organization by {invitation.inviterName} as a {invitation.role}
                               </p>
                             </div>
                           </div>
                           <div className="flex gap-2">
                             <Button size="sm" variant="outline">Decline</Button>
-                            <Button size="sm">Accept</Button>
+                            <Button size="sm" onClick={() => handleAcceptInvitation(invitation.id, invitation.organizationId)}>Accept</Button>
                           </div>
                         </CardContent>
                       </Card>

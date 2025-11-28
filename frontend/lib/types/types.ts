@@ -25,5 +25,16 @@ export interface Outline {
   reviewer: string
 }
 
+export interface InviteData {
+  id: string;
+  email: string;
+  role: string;
+  organizationId: string;
+  resend: boolean;
+  inviterId?: string;
+  inviterName?: string;
+  organizationName?: string;
+}
+
 export type SectionType = "TableOfContents"| "ExecutiveSummary" |"TechnicalApproach" | "Design" | "Capabilities" | "FocusDocument" | "Narrative"
 export type Status = "Completed" | "InProgress" | "Pending"
