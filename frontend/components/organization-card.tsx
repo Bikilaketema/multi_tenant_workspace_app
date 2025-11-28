@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Crown, ExternalLink, MoreHorizontal, Settings, Trash2 } from "lucide-react"
+import { Crown, ExternalLink, MoreHorizontal, Settings, Trash2, Users } from "lucide-react"
 import { useRouter } from "next/navigation"
 
 export function OrganizationCard({
@@ -46,6 +46,12 @@ const handleOpen = () => {
             <div className="flex items-center gap-2">
               <h3 className="font-semibold">{organization.name}</h3>
               {getRoleBadge(organization.role)}
+            </div>
+              <div className="mt-1 flex items-center gap-3 text-sm text-muted-foreground">
+              <span className="flex items-center gap-1">
+                <Users className="h-3.5 w-3.5" />
+                {organization.totalMembers} members
+              </span>
             </div>
           </div>
         </div>

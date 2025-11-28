@@ -3,6 +3,7 @@ export interface Organization {
   name: string
   role: "owner" | "admin" | "member"
   logo?: string
+  totalMembers: number
   createdAt: string
 }
 
