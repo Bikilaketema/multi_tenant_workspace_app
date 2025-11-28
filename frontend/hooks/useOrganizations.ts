@@ -36,3 +36,10 @@ export function useInviteUserToOrg() {
     },
   });
 }
+
+export function useOrganizationMembers(organizationId: string) {
+  return useQuery({
+    queryKey: ['organization', organizationId, 'members'],
+    queryFn: () => api.fetchOrganizationMembers(organizationId),
+  });
+}

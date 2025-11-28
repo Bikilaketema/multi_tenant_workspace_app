@@ -38,6 +38,16 @@ export async function deleteOrganization(organizationId: string) {
   return res.json();
 }
 
+export async function fetchOrganizationMembers(organizationId: string) {
+  const res = await fetch(`http://localhost:3000/api/organization/${organizationId}/members`, {
+    credentials: 'include',
+  });
+  if (!res.ok) {
+    throw new Error('Failed to fetch organization members');
+  }
+  return res.json();
+}
+
 export async function inviteUserToOrg(organizationId: string, data: {
   email: string;
   role: string;

@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Crown, ExternalLink, MoreHorizontal, Settings, Trash2, Users, Plus } from "lucide-react"
-import { useInviteUserToOrg } from "@/hooks/useOrganizations"
+import { useInviteUserToOrg, useOrganizationMembers } from "@/hooks/useOrganizations"
 import { useRouter } from "next/navigation"
 
 export function OrganizationCard({
@@ -37,6 +37,10 @@ export function OrganizationCard({
   const [email, setEmail] = useState("")
   const [role, setRole] = useState("member")
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const { data: members, isLoading: membersLoading } = useOrganizationMembers(organization.id);
+  const [membersDialogOpen, setMembersDialogOpen] = useState(false);
+
 
   const handleOpen = () => {
     router.push(`/dashboard/${organization.id}/table`)
@@ -61,51 +65,88 @@ export function OrganizationCard({
     }
   }
 
-  return (
-    <>
-      <Card className="transition-shadow hover:shadow-md">
-        <CardContent className="flex items-center justify-between p-6">
-          <div className="flex items-center gap-4">
-            <Avatar className="h-12 w-12">
-              {organization.logo ? (
-                <AvatarImage src={organization.logo} alt={organization.name} />
-              ) : (
-                <AvatarFallback className="bg-primary/10 text-lg font-semibold text-primary">
-                  {organization.name.charAt(0)}
-                </AvatarFallback>
-              )}
-            </Avatar>
-            <div>
-              <div className="flex items-center gap-2">
-                <h3 className="font-semibold">{organization.name}</h3>
-                {getRoleBadge(organization.role)}
-              </div>
-              <div className="mt-1 flex items-center gap-3 text-sm text-muted-foreground">
+return (
+  <>
+    <Card className="transition-shadow hover:shadow-md">
+      <CardContent className="flex items-center justify-between p-6">
+        <div className="flex items-center gap-4">
+          <Avatar className="h-12 w-12">
+            {organization.logo ? (
+              <AvatarImage src={organization.logo} alt={organization.name} />
+            ) : (
+              <AvatarFallback className="bg-primary/10 text-lg font-semibold text-primary">
+                {organization.name.charAt(0)}
+              </AvatarFallback>
+            )}
+          </Avatar>
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="font-semibold">{organization.name}</h3>
+              {getRoleBadge(organization.role)}
+            </div>
+            <div className="mt-1 flex items-center gap-3 text-sm text-muted-foreground">
                 {organization.role === "owner" ? (
-                <span className="flex items-center gap-1">
-                  <Users className="h-3.5 w-3.5" />
-                  {organization.totalMembers} members
-                </span>
-                ) : null}
+              <span className="flex items-center gap-1">
+                <Users className="h-3.5 w-3.5" />
+                {organization.totalMembers} members
+              </span>
+              ) : null}
 
-                {/* Dialog Trigger */}
-                <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-                  <DialogTrigger asChild>
-                    {organization.role === "owner" ? (
+              {organization.role === "owner" ? (
+              <Dialog open={membersDialogOpen} onOpenChange={setMembersDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="sm" className="gap-1">
+                    <Users className="h-3.5 w-3.5" />
+                    View Members
+                  </Button>
+                </DialogTrigger>
+
+                <DialogContent className="sm:max-w-[450px]">
+                  <DialogHeader>
+                    <DialogTitle>Organization Members</DialogTitle>
+                    <DialogDescription>People currently in this organization</DialogDescription>
+                  </DialogHeader>
+
+                  {membersLoading ? (
+                    <p className="text-sm text-muted-foreground mt-2">Loading members...</p>
+                  ) : members?.length ? (
+                    <div className="mt-4 space-y-3">
+                      {members.map((member: any) => (
+                        <div key={member.id} className="flex items-center gap-3 p-2 border rounded-md">
+                          <Avatar className="h-8 w-8">
+                            <AvatarFallback>{member.user.email?.charAt(0).toUpperCase()}</AvatarFallback>
+                          </Avatar>
+                          <div className="flex flex-col">
+                            <span className="font-medium">{member.user.name}</span>
+                            <span className="text-xs text-muted-foreground capitalize">{member.role}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground mt-2">No members found.</p>
+                  )}
+                </DialogContent>
+              </Dialog>
+               ) : null }
+
+              <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                <DialogTrigger asChild>
+                  {organization.role === "owner" ? (
                     <Button variant="outline" size="sm" className="flex items-center gap-1">
                       <Plus className="h-3.5 w-3.5" />
                       Invite new member
                     </Button>
-                    ) : null}
-                  </DialogTrigger>
+                  ) : null}
+                </DialogTrigger>
 
-                  <DialogContent className="sm:max-w-[400px]">
-                    <DialogHeader>
-                      <DialogTitle>Invite User to Organization</DialogTitle>
-                      <DialogDescription>Enter the email and role for the new member.</DialogDescription>
-                    </DialogHeader>
-                    <div className="grid gap-4 py-4">
-                      <div className="grid gap-1">
+                <DialogContent className="sm:max-w-[400px]">
+                  <DialogHeader>
+                    <DialogTitle>Invite User to Organization</DialogTitle>
+                    <DialogDescription>Enter the email and role for the new member.</DialogDescription>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                    <div className="grid gap-1">
                         <Label htmlFor="email">Email</Label>
                         <Input
                           id="email"
@@ -114,7 +155,7 @@ export function OrganizationCard({
                           onChange={(e) => setEmail(e.target.value)}
                           placeholder="user@example.com"
                         />
-                      </div>
+                    </div>
                       <div className="grid gap-1">
                         <Label htmlFor="role">Role</Label>
                         <select
@@ -123,26 +164,26 @@ export function OrganizationCard({
                           value={role}
                           onChange={(e) => setRole(e.target.value)}
                         >
-                          <option value="member">Member</option>
-                          <option value="admin">Admin</option>
-                          <option value="owner">Owner</option>
-                        </select>
+                      <option value="member">Member</option>
+                      <option value="admin">Admin</option>
+                      <option value="owner">Owner</option>
+                    </select>
                       </div>
-                      <Button onClick={handleInvite} disabled={isSubmitting}>
-                        {isSubmitting ? "Inviting..." : "Invite"}
-                      </Button>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-              </div>
+                    <Button onClick={handleInvite} disabled={isSubmitting}>
+                      {isSubmitting ? "Inviting..." : "Invite"}
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </div>
           </div>
+        </div>
 
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" className="gap-2 bg-transparent" onClick={handleOpen}>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" className="gap-2 bg-transparent" onClick={handleOpen}>
               <ExternalLink className="h-4 w-4" />
               Open
-            </Button>
+          </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon">
@@ -167,9 +208,9 @@ export function OrganizationCard({
                 )}
               </DropdownMenuContent>
             </DropdownMenu>
-          </div>
-        </CardContent>
-      </Card>
-    </>
+        </div>
+      </CardContent>
+    </Card>
+  </>
   )
 }
