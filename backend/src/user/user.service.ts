@@ -66,4 +66,15 @@ export class UserService {
 
       return response;
     }
+
+    async leaveOrganization(organizationId, cookieHeader: string) {
+      const response = await auth.api.leaveOrganization({
+    body: {
+        organizationId: organizationId,
+    },
+        headers: { cookie: cookieHeader },
+      });
+
+      return response;
+    }
 }
