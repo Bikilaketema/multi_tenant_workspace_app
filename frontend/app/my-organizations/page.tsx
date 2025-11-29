@@ -22,7 +22,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useOrganizations, useCreateOrganization, useDeleteOrganization } from "@/hooks/useOrganizations"
 import type { Invitation } from "@/lib/types/types"
 import { OrganizationCard } from "@/components/organization-card"
-import { useMyInvitations, useAcceptInvitation, useRejectInvitation } from "@/hooks/useUser"
+import { useMyInvitations, useAcceptInvitation, useRejectInvitation, useLeaveOrganization } from "@/hooks/useUser"
 
 export default function OrganizationsPage() {
   const router = useRouter()
@@ -31,6 +31,7 @@ export default function OrganizationsPage() {
   const deleteOrgMutation = useDeleteOrganization()
   const acceptInvitationMutation = useAcceptInvitation()
   const rejectInvitationMutation = useRejectInvitation()
+  const leaveOrganizationMutation = useLeaveOrganization()
 
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
   const [newOrgName, setNewOrgName] = useState("")
@@ -80,6 +81,15 @@ export default function OrganizationsPage() {
       }
     );
   };
+
+  const handleLeaveOrganization = async (organizationId: string) => {
+    try {
+      await leaveOrganizationMutation.mutateAsync({ organizationId })
+    } catch (err) {
+      console.error("Failed to leave organization:", err)
+    }
+  };
+
 
   const getRoleBadge = (role: string) => {
     switch (role) {
@@ -238,7 +248,7 @@ export default function OrganizationsPage() {
                   organization={org}
                   getRoleBadge={getRoleBadge}
                   onDelete={handleDeleteOrganization}
-                  onLeave={() => {}}
+                  onLeave={handleLeaveOrganization}
                 />
               ))
             )}

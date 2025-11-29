@@ -47,3 +47,21 @@ export async function rejectInvitation(organizationId: string, data: {
 
   return res.json();
 }
+
+export async function leaveOrganization(data: { organizationId: string }) {
+  const res = await fetch(
+    `http://localhost:3000/api/user/${data.organizationId}/leave-organization`,
+    {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    }
+  );
+
+  if (!res.ok) {
+    throw new Error('Failed to leave organization');
+  }
+
+  return res.json();
+}

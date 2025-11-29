@@ -32,3 +32,14 @@ export function useRejectInvitation() {
     },
   });
 }
+
+export function useLeaveOrganization() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: { organizationId: string }) => api.leaveOrganization(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['organizations'] });
+    },
+  });
+}
