@@ -23,3 +23,14 @@ export async function fetchTeams(organizationId: string) {
   }
   return res.json();
 }
+
+export async function deleteTeam(organizationId: string, teamId: string) {
+  const res = await fetch(`http://localhost:3000/api/team/${organizationId}/${teamId}/delete-team`, {
+    method: 'DELETE',
+    credentials: 'include',
+  });
+  if (!res.ok) {
+    throw new Error('Failed to delete team');
+  }
+  return res.json();
+}

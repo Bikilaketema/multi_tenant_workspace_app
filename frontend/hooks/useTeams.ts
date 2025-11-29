@@ -16,3 +16,12 @@ export function useCreateTeam() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['teams'] }),
   });
 }
+
+export function useDeleteTeam() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ organizationId, teamId }: { organizationId: string; teamId: string }) =>
+      api.deleteTeam(organizationId, teamId),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['teams'] }),
+  });
+}

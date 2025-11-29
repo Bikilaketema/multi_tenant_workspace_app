@@ -1,7 +1,7 @@
 "use client"
 
-import type * as React from "react"
-import { GalleryVerticalEnd, Table2, Users, ChevronsUpDown, LogOut } from "lucide-react"
+import * as React from "react"
+import { GalleryVerticalEnd, Table2, Users, ChevronsUpDown, LogOut, Trash2, Plus } from "lucide-react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 
@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useOrganizations } from "@/hooks/useOrganizations"
-import { useTeams } from "@/hooks/useTeams"
+import { useTeams, useCreateTeam, useDeleteTeam } from "@/hooks/useTeams"
 import { authClient } from "@/lib/auth"
 import { useParams } from "next/navigation"
 
@@ -65,6 +65,32 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const {data: teams = [] } = useTeams(org_id!);
 
+    const createTeamMutation = useCreateTeam()
+  const deleteTeamMutation = useDeleteTeam()
+
+  const [newTeamName, setNewTeamName] = React.useState("")
+  const [isDialogOpen, setDialogOpen] = React.useState(false)
+
+    const handleCreateTeam = async () => {
+    if (!newTeamName) return
+    try {
+      await createTeamMutation.mutateAsync({ name: newTeamName, organizationId: org_id! })
+      setNewTeamName("")
+      setDialogOpen(false)
+    } catch (err) {
+      console.error("Failed to create team", err)
+    }
+  }
+
+  const handleDeleteTeam = async (teamId: string) => {
+    if (!org_id) return
+    try {
+      await deleteTeamMutation.mutateAsync({ organizationId: org_id, teamId })
+    } catch (err) {
+      console.error("Failed to delete team", err)
+    }
+  }
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -97,12 +123,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <DropdownMenuItem
                     key={team.id}
                    // onClick={() => router.push(`/dashboard/${team.id}/table`)}
-                  >
-                    <div className="flex items-center gap-2">
-                      <div className="bg-sidebar-primary text-sidebar-primary-foreground flex h-6 w-6 items-center justify-center rounded-sm">
-                        <GalleryVerticalEnd className="h-4 w-4" />
-                      </div>
-                      <span>{team.name}</span>
+                    >
+                      <div className="flex items-center gap-2">
+                        <div className="bg-sidebar-primary text-sidebar-primary-foreground flex h-6 w-6 items-center justify-center rounded-sm">
+                          <GalleryVerticalEnd className="h-4 w-4" />
+                        </div>
+                        <span>{team.name}</span>
                     </div>
                   </DropdownMenuItem>
                 ))}
@@ -111,9 +137,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <DropdownMenuItem disabled className="opacity-60">No Teams</DropdownMenuItem>
                 )}
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => router.push("/my-organizations")}>
-                  Manage Teams
+                <DropdownMenuItem
+                  className="flex items-center gap-2 cursor-pointer"
+                  onClick={() => setDialogOpen(true)}
+                >
+                  <Plus className="h-4 w-4" />
+                  <span>Create New Team</span>
                 </DropdownMenuItem>
+                <DropdownMenuSeparator />
               </DropdownMenuContent>
             </DropdownMenu>
           </SidebarMenuItem>
@@ -186,7 +217,38 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
+
       <SidebarRail />
+
+      {/* Dialog for creating a new team */}
+      {isDialogOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white rounded-lg p-6 w-80">
+            <h3 className="text-lg font-semibold mb-4">Create New Team</h3>
+            <input
+              type="text"
+              placeholder="Team Name"
+              className="w-full border p-2 rounded mb-4"
+              value={newTeamName}
+              onChange={(e) => setNewTeamName(e.target.value)}
+            />
+            <div className="flex justify-end gap-2">
+              <button
+                className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+                onClick={() => setDialogOpen(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-4 py-2 bg-black/50 text-white rounded hover:bg-black"
+                onClick={handleCreateTeam}
+              >
+                Create
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </Sidebar>
   )
 }
