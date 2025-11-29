@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useOrganizations } from "@/hooks/useOrganizations"
+import { useTeams } from "@/hooks/useTeams"
 import { authClient } from "@/lib/auth"
 import { useParams } from "next/navigation"
 
@@ -62,7 +63,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const organization = organizations?.find(org => org.id === org_id);
 
-
+  const {data: teams = [] } = useTeams(org_id!);
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -90,28 +91,28 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 align="start"
                 sideOffset={4}
               >
-                <DropdownMenuLabel className="text-xs text-muted-foreground">Organizations</DropdownMenuLabel>
+                <DropdownMenuLabel className="text-xs text-muted-foreground">Teams</DropdownMenuLabel>
 
-                {organizations.map((org) => (
+                {teams.map((team: any) => (
                   <DropdownMenuItem
-                    key={org.id}
-                    onClick={() => router.push(`/dashboard/${org.id}/table`)}
+                    key={team.id}
+                   // onClick={() => router.push(`/dashboard/${team.id}/table`)}
                   >
                     <div className="flex items-center gap-2">
                       <div className="bg-sidebar-primary text-sidebar-primary-foreground flex h-6 w-6 items-center justify-center rounded-sm">
                         <GalleryVerticalEnd className="h-4 w-4" />
                       </div>
-                      <span>{org.name}</span>
+                      <span>{team.name}</span>
                     </div>
                   </DropdownMenuItem>
                 ))}
 
-                {organizations.length === 0 && (
-                  <DropdownMenuItem disabled className="opacity-60">No Organizations</DropdownMenuItem>
+                {teams.length === 0 && (
+                  <DropdownMenuItem disabled className="opacity-60">No Teams</DropdownMenuItem>
                 )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => router.push("/my-organizations")}>
-                  Manage Organizations
+                  Manage Teams
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

@@ -36,5 +36,12 @@ export interface InviteData {
   organizationName?: string;
 }
 
+export interface Team {
+  id: string;
+  name: string;
+  organizationId: string;
+  createdAt: string;
+}
+
 export type SectionType = "TableOfContents"| "ExecutiveSummary" |"TechnicalApproach" | "Design" | "Capabilities" | "FocusDocument" | "Narrative"
 export type Status = "Completed" | "InProgress" | "Pending"
