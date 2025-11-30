@@ -26,6 +26,7 @@ import {
   Loader2,
   Clock
 } from "lucide-react"
+import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd"
 
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -45,12 +46,23 @@ import { useOutlines, useCreateOutline, useDeleteOutline, useEditOutline } from 
 import { useParams } from "next/navigation"
 import { Outline } from "@/lib/types/types"
 import { toast } from "sonner"
+import { reorder } from "@/lib/utils"
+
 
 export function DataTable() {
   const { org_id } = useParams() as { org_id: string };
   const { data: outlines = [], isLoading, refetch } = useOutlines(org_id);
   const createOutline = useCreateOutline(org_id);
   const deleteOutline = useDeleteOutline(org_id);
+  const editOutline = useEditOutline(org_id);
+
+  const [localOutlines, setLocalOutlines] = React.useState<Outline[]>([]);
+
+  React.useEffect(() => {
+    if (outlines) {
+      setLocalOutlines(outlines);
+    }
+  }, [outlines]);
 
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
@@ -73,8 +85,6 @@ export function DataTable() {
     setSelectedSection(section)
     setSheetOpen(true)
   }
-
-    const editOutline = useEditOutline(org_id);
 
 
   const handleSave = async (sectionData: Omit<Outline, "id"> & { id?: string }) => {
@@ -109,16 +119,35 @@ export function DataTable() {
     setSheetOpen(false)
   }
 
+  const onDragEnd = (result: DropResult) => {
+    if (!result.destination) {
+      return
+    }
+
+    const newOutlines = reorder(
+      localOutlines,
+      result.source.index,
+      result.destination.index
+    )
+
+    setLocalOutlines(newOutlines)
+  }
+
 
   const columns: ColumnDef<Outline>[] = [
     {
       id: "drag",
       header: () => null,
-      cell: () => (
-        <div className="cursor-grab">
-          <GripVertical className="h-4 w-4 text-muted-foreground" />
-        </div>
-      ),
+      cell: ({ row }) => {
+          return (
+            <div
+              className="cursor-grab"
+              data-draggable-handle
+            >
+              <GripVertical className="h-4 w-4 text-muted-foreground" />
+            </div>
+          )
+      },
       enableSorting: false,
       enableHiding: false,
     },
@@ -226,7 +255,7 @@ export function DataTable() {
   ]
 
   const table = useReactTable({
-    data: outlines,
+    data: localOutlines,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -248,6 +277,16 @@ export function DataTable() {
       },
     },
   })
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-48">
+        <Loader2 className="mr-2 h-6 w-6 animate-spin" />
+        <p>Loading outlines...</p>
+      </div>
+    )
+  }
+
 
   return (
     <div className="w-full">
@@ -303,38 +342,66 @@ export function DataTable() {
         </div>
       </div>
       <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                    </TableHead>
-                  )
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+        <DragDropContext onDragEnd={onDragEnd}>
+            <Table>
+                <TableHeader>
+                    {table.getHeaderGroups().map((headerGroup) => (
+                    <TableRow key={headerGroup.id}>
+                        {headerGroup.headers.map((header) => {
+                        return (
+                            <TableHead key={header.id}>
+                            {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                            </TableHead>
+                        )
+                        })}
+                    </TableRow>
+                    ))}
+                </TableHeader>
+                
+                <Droppable droppableId="outline-table-body">
+                    {(droppableProvided) => (
+                        <TableBody
+                            ref={droppableProvided.innerRef}
+                            {...droppableProvided.droppableProps}
+                        >
+                            {table.getRowModel().rows?.length ? (
+                                table.getRowModel().rows.map((row, index) => {
+                                    const rowData = row.original;
+                                    return (
+                                        <Draggable key={rowData.id} draggableId={rowData.id} index={index}>
+                                            {(draggableProvided, snapshot) => (
+                                                <TableRow
+                                                    ref={draggableProvided.innerRef}
+                                                    {...draggableProvided.draggableProps}
+                                                    data-state={row.getIsSelected() && "selected"}
+                                                    className={snapshot.isDragging ? "bg-accent/50 shadow-lg" : ""}
+                                                >
+                                                    {row.getVisibleCells().map((cell) => (
+                                                        <TableCell 
+                                                            key={cell.id}
+                                                            {...(cell.column.id === "drag" ? draggableProvided.dragHandleProps : {})}
+                                                        >
+                                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                                        </TableCell>
+                                                    ))}
+                                                </TableRow>
+                                            )}
+                                        </Draggable>
+                                    )
+                                })
+                            ) : (
+                                <TableRow>
+                                    <TableCell colSpan={columns.length} className="h-24 text-center">
+                                        No results.
+                                    </TableCell>
+                                </TableRow>
+                            )}
+                            {droppableProvided.placeholder}
+                        </TableBody>
+                    )}
+                </Droppable>
+            </Table>
+        </DragDropContext>
       </div>
       <div className="flex items-center justify-between space-x-2 py-4">
         <div className="flex-1 text-sm text-muted-foreground">
