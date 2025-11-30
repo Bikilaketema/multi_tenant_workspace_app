@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Building2, Plus, Mail, Crown } from "lucide-react"
+import { Building2, Plus, Mail, Crown, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -23,6 +23,7 @@ import { useOrganizations, useCreateOrganization, useDeleteOrganization } from "
 import type { Invitation } from "@/lib/types/types"
 import { OrganizationCard } from "@/components/organization-card"
 import { useMyInvitations, useAcceptInvitation, useRejectInvitation, useLeaveOrganization } from "@/hooks/useUser"
+import { authClient } from "@/lib/auth"
 
 export default function OrganizationsPage() {
   const router = useRouter()
@@ -113,6 +114,17 @@ export default function OrganizationsPage() {
 
   if (isLoading) return <div>Loading organizations...</div>
   if (isError) return <div>Failed to load organizations.</div>
+
+    const handleSignOut = async () => {
+  
+    await authClient.signOut({
+    fetchOptions: {
+      onSuccess: () => {
+          router.push("/sign-in");
+        },
+      },
+    });
+    }
 
   return (
     <div className="min-h-screen bg-muted/30">
@@ -215,6 +227,15 @@ export default function OrganizationsPage() {
                 </DialogFooter>
               </DialogContent>
             </Dialog>
+
+            <button
+              onClick={handleSignOut}
+              className="flex items-center gap-2 rounded-lg bg-black px-4 py-2 text-white font-medium transition-colors hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1"
+            >
+              <LogOut className="w-5 h-5" />
+              Log Out
+            </button>
+
           </div>
         </div>
 

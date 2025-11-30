@@ -49,10 +49,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname()
   const router = useRouter()
 
-  const handleSignOut = () => {
+  const handleSignOut = async () => {
 
-    router.push("/sign-in")
+  await authClient.signOut({
+  fetchOptions: {
+    onSuccess: () => {
+        router.push("/sign-in");
+      },
+    },
+  });
   }
+
   const { data: organizations = [] } = useOrganizations();
 
   const { data: session } = authClient.useSession();
@@ -150,6 +157,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
+
+      {/* Sidebar Content omitted for brevity */}
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Platform</SidebarGroupLabel>
@@ -167,6 +176,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
+
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
