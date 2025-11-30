@@ -2,6 +2,7 @@ import { Controller, Get, Req, Post, Body, UnauthorizedException } from '@nestjs
 import type { Request } from 'express';
 import { UserService } from './user.service';
 import { AcceptInvitationDto } from './dto/accept-invitation.dto';
+import { LeaveOrganizationDto } from './dto/leave-organization.dto';
 
 @Controller('user')
 export class UserController {
@@ -30,7 +31,7 @@ export class UserController {
 
   @Post(':orgId/leave-organization')
   leaveOrganization(
-    @Body() data: { organizationId: string },
+    @Body() dto: LeaveOrganizationDto,
     @Req() req: Request,
   ) {
 
@@ -38,6 +39,6 @@ export class UserController {
       throw new UnauthorizedException('No cookie found');
     }
 
-    return this.userService.leaveOrganization(data.organizationId, req.headers.cookie);
+    return this.userService.leaveOrganization(dto, req.headers.cookie);
   }
 }
