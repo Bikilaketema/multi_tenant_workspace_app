@@ -1,19 +1,23 @@
-import { Controller, Get, Post, Body, Query, Param, Delete, Req, UnauthorizedException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Query, Param, Delete, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { TeamService } from './team.service';
 import { CreateTeamDto } from './dto/create-team.dto';
 import { UpdateTeamDto } from './dto/update-team.dto';
 import type { Request } from 'express';
-import { organization } from 'better-auth/plugins';
+import { OrgRoleGuard } from '../auth/guards/role.guard';
+import { Roles } from '../auth/strategy/auth.decorator';
 
+@UseGuards(OrgRoleGuard)
 @Controller('team/:orgId')
 export class TeamController {
   constructor(private readonly teamService: TeamService) {}
 
+  @Roles('owner', 'admin')
   @Post('create-team')
   create(@Body() createTeamDto: CreateTeamDto, @Req() req: Request) {
     return this.teamService.create(createTeamDto, req.headers.cookie);
   }
 
+  @Roles('owner', 'admin')
   @Get('list-teams')
   findAll(@Req() req: Request, @Param('orgId') organizationId: string) {
 
@@ -24,6 +28,7 @@ export class TeamController {
     return this.teamService.findAll(organizationId, req.headers.cookie);
   }
 
+  @Roles('owner', 'admin')
   @Delete(':teamId/delete-team')
   async remove(
     @Param('teamId') teamId: string,
