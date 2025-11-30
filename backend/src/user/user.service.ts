@@ -45,6 +45,18 @@ export class UserService {
     }));
   }
 
+  async getInvitation(invitationId, cookieHeader: string) {
+    const response = await auth.api.getInvitation({
+      query: {
+        id: invitationId
+      },
+
+      headers: { cookie: cookieHeader }
+    })
+
+    return response;
+  }
+
   async acceptInvitation(dto: AcceptInvitationDto, cookieHeader?: string) {
       const response = await auth.api.acceptInvitation({
         body: {

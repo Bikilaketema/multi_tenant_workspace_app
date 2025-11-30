@@ -1,4 +1,4 @@
-import { Controller, Get, Req, Post, Body, UnauthorizedException } from '@nestjs/common';
+import { Controller, Get, Req, Post, Body, UnauthorizedException, Param } from '@nestjs/common';
 import type { Request } from 'express';
 import { UserService } from './user.service';
 import { AcceptInvitationDto } from './dto/accept-invitation.dto';
@@ -14,6 +14,18 @@ export class UserController {
   listMyInvitations(@Req() req: Request) {
     return this.userService.listMyInvitations(req)
   }
+
+  @Get(':invitationId/invitation')
+  getSingleInvitation(
+    @Req() req: Request,
+    @Param('invitationId') invitationId: string
+  ) {
+    const cookie = req.headers.cookie
+    if (!cookie) throw new UnauthorizedException('No session cookie found')
+
+    return this.userService.getInvitation(invitationId, cookie)
+  }
+
 
   @Post(':orgId/accept-invitation')
   acceptInvitation(
