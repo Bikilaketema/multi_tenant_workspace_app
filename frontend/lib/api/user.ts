@@ -10,6 +10,18 @@ export async function getMyInvitations() {
   return res.json();
 }
 
+export async function getInvitation(invitationId: string) {
+  const res = await fetch(`http://localhost:3000/api/user/${invitationId}/invitation`, {
+    credentials: 'include',
+  });
+
+  if (!res.ok) {
+    throw new Error('Failed to fetch invitation');
+  }
+
+  return res.json();
+}
+
 export async function acceptInvitation(organizationId: string, data: {
     invitationId: string;
 }) {

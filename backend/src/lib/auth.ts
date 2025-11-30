@@ -16,7 +16,7 @@ export const auth = betterAuth({
   plugins: [organization({
       teams: { enabled: true },
       async sendInvitationEmail(data) {
-        const inviteLink = `https://example.com/accept-invitation/${data.id}`;
+        const inviteLink = `http://localhost:3001/invite?invitationId=${data.id}`;
         sendOrganizationInvitation({
           email: data.email,
           invitedByUsername: data.inviter.user.name,

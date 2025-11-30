@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -18,6 +18,8 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"form">
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null| undefined>(null);
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const redirect = searchParams.get("redirect") || "/my-organizations"
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,7 +36,7 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"form">
       if (error) {
         setError(error.message);
       } else {
-        router.push("/sign-in");
+        router.push(redirect);
       }
     } catch (err: any) {
       setError(err.message || "Something went wrong");

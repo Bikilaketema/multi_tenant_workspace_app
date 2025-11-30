@@ -9,6 +9,13 @@ export function useMyInvitations() {
   });
 }
 
+export function useSingleInvitation(invitationId: string) {
+  return useQuery({
+    queryKey: ['invitation', invitationId],
+    queryFn: () => api.getInvitation(invitationId),
+    enabled: !!invitationId,
+  })
+}
 export function useAcceptInvitation() {
   const queryClient = useQueryClient();
   return useMutation({

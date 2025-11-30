@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -15,6 +15,8 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"form">)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState<string | null| undefined>(null);
+  const searchParams = useSearchParams()
+  const redirect = searchParams.get("redirect") || "/my-organizations"
 
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
@@ -33,7 +35,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"form">)
       if (error) {
         setError(error.message);
       } else {
-        router.push("/my-organizations");
+        router.replace(redirect);
       }
     } catch (err: any) {
       setError(err.message || "Something went wrong");
@@ -96,7 +98,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"form">)
       </div>
       <div className="text-center text-sm">
         Don&apos;t have an account?{" "}
-        <Link href="/sign-up" className="underline underline-offset-4">
+        <Link href={`/sign-up?redirect=${encodeURIComponent(redirect)}`}className="underline underline-offset-4">
           Sign up
         </Link>
       </div>
