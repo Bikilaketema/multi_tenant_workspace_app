@@ -183,7 +183,6 @@ return (
                         >
                       <option value="member">Member</option>
                       <option value="admin">Admin</option>
-                      <option value="owner">Owner</option>
                     </select>
                       </div>
                     <Button onClick={handleInvite} disabled={isSubmitting}>
