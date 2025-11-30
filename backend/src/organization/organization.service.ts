@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { CreateInvitationDto } from './dto/invitationEmail.dto';
 import { RemoveMemberDto } from './dto/remove-member.dto';
@@ -88,6 +88,14 @@ export class OrganizationService {
   }
 
   async sendInvitation(dto: CreateInvitationDto, cookieHeader?: string) {
+
+    const allowedRoles = ['member', 'admin'];
+    if (!allowedRoles.includes(dto.role)) {
+      throw new BadRequestException(
+        `Invalid role '${dto.role}'. Only 'member' or 'admin' can be assigned.`,
+      );
+    }
+
     const response = await auth.api.createInvitation({
       body: {
         email: dto.email,
