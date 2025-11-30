@@ -88,13 +88,6 @@ return (
               {getRoleBadge(organization.role)}
             </div>
             <div className="mt-1 flex items-center gap-3 text-sm text-muted-foreground">
-                {organization.role === "owner" ? (
-              <span className="flex items-center gap-1">
-                <Users className="h-3.5 w-3.5" />
-                {organization.totalMembers} members
-              </span>
-              ) : null}
-
               {organization.role === "owner" ? (
               <Dialog open={membersDialogOpen} onOpenChange={setMembersDialogOpen}>
                 <DialogTrigger asChild>
@@ -107,7 +100,7 @@ return (
                <DialogContent className="sm:max-w-[450px]">
                 <DialogHeader>
                   <DialogTitle>Organization Members</DialogTitle>
-                  <DialogDescription>People currently in this organization</DialogDescription>
+                  <DialogDescription>People currently in this organization. There {members?.length} members in the organization.</DialogDescription>
                 </DialogHeader>
 
                 {membersLoading ? (
