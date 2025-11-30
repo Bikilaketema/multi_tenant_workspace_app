@@ -5,7 +5,9 @@ import { UpdateTeamDto } from './dto/update-team.dto';
 import type { Request } from 'express';
 import { OrgRoleGuard } from '../auth/guards/role.guard';
 import { Roles } from '../auth/strategy/auth.decorator';
+import { ApiSecurity } from '@nestjs/swagger';
 
+@ApiSecurity('session-cookie')
 @UseGuards(OrgRoleGuard)
 @Controller('team/:orgId')
 export class TeamController {

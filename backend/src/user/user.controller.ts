@@ -3,7 +3,9 @@ import type { Request } from 'express';
 import { UserService } from './user.service';
 import { AcceptInvitationDto } from './dto/accept-invitation.dto';
 import { LeaveOrganizationDto } from './dto/leave-organization.dto';
+import { ApiSecurity } from '@nestjs/swagger';
 
+@ApiSecurity('session-cookie')
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}

@@ -11,7 +11,7 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('Acme Inc. Multi-Tenant Workspace API')
-    .setDescription('API for managing users, organizations, and document outlines, scoped by tenant.')
+    .setDescription('API for managing users, organizations, and document outlines, scoped by tenant. Note that since better auth is used for auth swagger will get the cookie from browser by itself. So if you dont see the lock icon locked, it will still work.')
     .setVersion('1.0')
     .addBearerAuth(
       {

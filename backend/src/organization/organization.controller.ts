@@ -6,9 +6,12 @@ import { CreateInvitationDto } from './dto/invitationEmail.dto';
 import { RemoveMemberDto } from './dto/remove-member.dto';
 import { OrgRoleGuard } from '../auth/guards/role.guard';
 import { Roles } from '../auth/strategy/auth.decorator';
+import { ApiSecurity } from '@nestjs/swagger';
 
 @UseGuards(OrgRoleGuard)
 @Controller('organization')
+@ApiSecurity('session-cookie')
+@Controller('organizations')
 export class OrganizationController {
   constructor(private readonly organizationService: OrganizationService) {}
 

@@ -4,7 +4,9 @@ import { CreateOutlineDto } from './dto/create-outline.dto';
 import { UpdateOutlineDto } from './dto/update-outline.dto';
 import { OrgRoleGuard } from '../auth/guards/role.guard';
 import { Roles } from '../auth/strategy/auth.decorator';
+import { ApiSecurity } from '@nestjs/swagger';
 
+@ApiSecurity('session-cookie')
 @UseGuards(OrgRoleGuard)
 @Controller('organization/:orgId/outlines')
 export class OutlineController {
