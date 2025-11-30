@@ -219,41 +219,49 @@ export default function OrganizationsPage() {
         </div>
 
         {/* Organizations List */}
-        <Tabs defaultValue="all" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="all">All ({orgs?.length || 0})</TabsTrigger>
-            <TabsTrigger value="owned">{`Owned (${orgs?.filter(o => o.role === "owner").length || 0})`}</TabsTrigger>
-            <TabsTrigger value="member">{`Member (${orgs?.filter(o => o.role !== "owner").length || 0})`}</TabsTrigger>
-          </TabsList>
+       <Tabs defaultValue="all" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="all">All ({orgs?.length || 0})</TabsTrigger>
+          <TabsTrigger value="owner">Owned ({orgs?.filter(o => o.role === "owner").length || 0})</TabsTrigger>
+          <TabsTrigger value="member">Member ({orgs?.filter(o => o.role === "member").length || 0})</TabsTrigger>
+        </TabsList>
 
-          <TabsContent value="all" className="space-y-4">
-            {orgs?.length === 0 ? (
-              <Card>
-                <CardContent className="flex flex-col items-center justify-center py-16">
-                  <Building2 className="mb-4 h-12 w-12 text-muted-foreground/50" />
-                  <h3 className="mb-2 text-lg font-medium">No organizations yet</h3>
-                  <p className="mb-4 text-center text-sm text-muted-foreground">
-                    Create your first organization or accept an invitation to get started
-                  </p>
-                  <Button onClick={() => setCreateDialogOpen(true)} className="gap-2">
-                    <Plus className="h-4 w-4" />
-                    Create Organization
-                  </Button>
-                </CardContent>
-              </Card>
-            ) : (
-              orgs?.map((org: any) => (
-                <OrganizationCard
-                  key={org.id}
-                  organization={org}
-                  getRoleBadge={getRoleBadge}
-                  onDelete={handleDeleteOrganization}
-                  onLeave={handleLeaveOrganization}
-                />
-              ))
-            )}
-          </TabsContent>
-        </Tabs>
+        <TabsContent value="all" className="space-y-4">
+          {orgs?.map((org: any) => (
+            <OrganizationCard
+              key={org.id}
+              organization={org}
+              getRoleBadge={getRoleBadge}
+              onDelete={handleDeleteOrganization}
+              onLeave={handleLeaveOrganization}
+            />
+          ))}
+        </TabsContent>
+
+        <TabsContent value="owner" className="space-y-4">
+          {orgs?.filter(o => o.role === "owner").map((org: any) => (
+            <OrganizationCard
+              key={org.id}
+              organization={org}
+              getRoleBadge={getRoleBadge}
+              onDelete={handleDeleteOrganization}
+              onLeave={handleLeaveOrganization}
+            />
+          ))}
+        </TabsContent>
+
+        <TabsContent value="member" className="space-y-4">
+          {orgs?.filter(o => o.role === "member").map((org: any) => (
+            <OrganizationCard
+              key={org.id}
+              organization={org}
+              getRoleBadge={getRoleBadge}
+              onDelete={handleDeleteOrganization}
+              onLeave={handleLeaveOrganization}
+            />
+          ))}
+        </TabsContent>
+       </Tabs>
       </div>
     </div>
   )
