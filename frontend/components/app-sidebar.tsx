@@ -30,6 +30,7 @@ import { useOrganizations } from "@/hooks/useOrganizations"
 import { useTeams, useCreateTeam, useDeleteTeam } from "@/hooks/useTeams"
 import { authClient } from "@/lib/auth"
 import { useParams } from "next/navigation"
+import { toast } from "sonner"
 
 
 const navItems = [
@@ -58,6 +59,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       },
     },
   });
+  toast.success('Logged out successfully!')
   }
 
   const { data: organizations = [] } = useOrganizations();
@@ -82,6 +84,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     if (!newTeamName) return
     try {
       await createTeamMutation.mutateAsync({ name: newTeamName, organizationId: org_id! })
+      toast.success('Team created successfully!')
       setNewTeamName("")
       setDialogOpen(false)
     } catch (err) {

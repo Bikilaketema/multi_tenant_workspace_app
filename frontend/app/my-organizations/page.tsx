@@ -24,6 +24,7 @@ import type { Invitation } from "@/lib/types/types"
 import { OrganizationCard } from "@/components/organization-card"
 import { useMyInvitations, useAcceptInvitation, useRejectInvitation, useLeaveOrganization } from "@/hooks/useUser"
 import { authClient } from "@/lib/auth"
+import { toast } from "sonner"
 
 export default function OrganizationsPage() {
   const router = useRouter()
@@ -51,6 +52,7 @@ export default function OrganizationsPage() {
       })
       setNewOrgName("")
       setCreateDialogOpen(false)
+      toast.success('Organization created successfully!')
     } catch (err) {
       console.error("Failed to create organization:", err)
     }
@@ -59,6 +61,7 @@ export default function OrganizationsPage() {
   const handleDeleteOrganization = async (orgId: string) => {
     try {
       await deleteOrgMutation.mutateAsync(orgId)
+      toast.success('Organization deleted successfully!')
     } catch (err) {
       console.error("Failed to delete organization:", err)
     }
@@ -71,6 +74,7 @@ export default function OrganizationsPage() {
         onSuccess: () => setInvitationDialogOpen(false),
       }
     );
+    toast.success('Invitation rejected!')
   }
 
 
@@ -81,11 +85,13 @@ export default function OrganizationsPage() {
         onSuccess: () => setInvitationDialogOpen(false),
       }
     );
+    toast.success('Invitation accepted!')
   };
 
   const handleLeaveOrganization = async (organizationId: string) => {
     try {
       await leaveOrganizationMutation.mutateAsync({ organizationId })
+      toast.success('You have left the organization!')
     } catch (err) {
       console.error("Failed to leave organization:", err)
     }
@@ -124,6 +130,7 @@ export default function OrganizationsPage() {
         },
       },
     });
+    toast.success('Logged out!')
     }
 
   return (

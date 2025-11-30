@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { authClient } from "@/lib/auth"
+import { toast } from "sonner"
 
 export function LoginForm({ className, ...props }: React.ComponentProps<"form">) {
   const [email, setEmail] = useState("")
@@ -35,6 +36,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"form">)
       if (error) {
         setError(error.message);
       } else {
+        toast.success("Logged in successfully")
         router.replace(redirect);
       }
     } catch (err: any) {

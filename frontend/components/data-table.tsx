@@ -44,6 +44,7 @@ import { SectionSheet } from "@/components/section-sheet"
 import { useOutlines, useCreateOutline, useDeleteOutline, useEditOutline } from "@/hooks/useOutlines"
 import { useParams } from "next/navigation"
 import { Outline } from "@/lib/types/types"
+import { toast } from "sonner"
 
 export function DataTable() {
   const { org_id } = useParams() as { org_id: string };
@@ -79,11 +80,13 @@ export function DataTable() {
   const handleSave = async (sectionData: Omit<Outline, "id"> & { id?: string }) => {
     if (sheetMode === "add") {
       await createOutline.mutateAsync(sectionData)
+      toast.success('Outline created successfully!')
     } else if (sheetMode === "edit" && sectionData.id) {
       await editOutline.mutateAsync({
         outline_id: sectionData.id,
         updates: sectionData,
       })
+      toast.success('Outline updated successfully!')
     }
 
     await refetch()
@@ -92,18 +95,19 @@ export function DataTable() {
 
 
   const handleDelete = async (section: Outline) => {
-    //if (!selectedSection) return
     await deleteOutline.mutateAsync(section.id)
+    toast.success('Outline deleted successfully!')
     await refetch()
     setSheetOpen(false)
   }
 
   const handleDeleteSheet = async () => {
-  if (!selectedSection) return
-  await deleteOutline.mutateAsync(selectedSection.id)
-  await refetch()
-  setSheetOpen(false)
-}
+    if (!selectedSection) return
+    await deleteOutline.mutateAsync(selectedSection.id)
+    toast.success('Outline deleted successfully!')
+    await refetch()
+    setSheetOpen(false)
+  }
 
 
   const columns: ColumnDef<Outline>[] = [

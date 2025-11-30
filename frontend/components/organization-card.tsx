@@ -19,6 +19,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Crown, ExternalLink, MoreHorizontal, Settings, Trash2, Users, Plus } from "lucide-react"
 import { useInviteUserToOrg, useOrganizationMembers, useRemoveOrganizationMember } from "@/hooks/useOrganizations"
 import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 
 export function OrganizationCard({
   organization,
@@ -49,6 +50,17 @@ export function OrganizationCard({
     router.push(`/dashboard/${organization.id}/table`)
   }
 
+  const handleRemoveFromOrg = async (organizationId: string, email: string) => {
+    try {
+      await removeMember.mutateAsync({ organizationId, email })
+      toast.success("User removed from the organization!")
+    } catch (error) {
+      console.error(error)
+      toast.error("Failed to remove user")
+    }
+  }
+
+
   const handleInvite = async () => {
     setIsSubmitting(true)
     try {
@@ -61,6 +73,7 @@ export function OrganizationCard({
       setDialogOpen(false)
       setEmail("")
       setRole("member")
+      toast.success('Invitation sent successfully!')
     } catch (err) {
       console.error(err)
     } finally {
@@ -132,7 +145,7 @@ return (
                             variant="destructive"
                             size="sm"
                             className="text-xs"
-                            onClick={() => removeMember.mutate({ organizationId: organization.id, email: member.user.email })}
+                            onClick={() => handleRemoveFromOrg(organization.id, member.user.email)}
                           >
                             Remove
                           </Button>
