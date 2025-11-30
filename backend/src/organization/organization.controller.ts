@@ -1,11 +1,13 @@
-import { Controller, Post, Body, Req, Param, Delete, Get } from '@nestjs/common';
+import { Controller, Post, Body, Req, Param, Delete, Get, UseGuards } from '@nestjs/common';
 import type { Request } from 'express';
 import { OrganizationService } from './organization.service';
 import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { CreateInvitationDto } from './dto/invitationEmail.dto';
 import { RemoveMemberDto } from './dto/remove-member.dto';
+import { OrgRoleGuard } from '../auth/guards/role.guard';
+import { Roles } from '../auth/strategy/auth.decorator';
 
-
+@UseGuards(OrgRoleGuard)
 @Controller('organization')
 export class OrganizationController {
   constructor(private readonly organizationService: OrganizationService) {}
@@ -34,6 +36,7 @@ export class OrganizationController {
     return this.organizationService.remove(id, req.headers.cookie);
   }
 
+  @Roles('owner')
   @Post(':orgId/invite-member')
   async sendInvitationEmail(
     @Body() dto: CreateInvitationDto,
@@ -43,6 +46,7 @@ export class OrganizationController {
     return this.organizationService.sendInvitation(dto, req.headers.cookie);
   }
 
+  @Roles('owner')
   @Delete(':orgId/remove-member')
   async removeMember(
     @Body() dto: RemoveMemberDto,
