@@ -1,8 +1,10 @@
+import { api_url } from "../config";
+
 export async function createTeam(data: {
   name: string;
   organizationId: string;
 }) {
-  const res = await fetch(`http://localhost:3000/api/team/${data.organizationId}/create-team`, {
+  const res = await fetch(`${api_url}/api/team/${data.organizationId}/create-team`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
@@ -15,7 +17,7 @@ export async function createTeam(data: {
 }
 
 export async function fetchTeams(organizationId: string) {
-  const res = await fetch(`http://localhost:3000/api/team/${organizationId}/list-teams`, {
+  const res = await fetch(`${api_url}/api/team/${organizationId}/list-teams`, {
     credentials: 'include',
   });
   if (!res.ok) {
@@ -25,7 +27,7 @@ export async function fetchTeams(organizationId: string) {
 }
 
 export async function deleteTeam(organizationId: string, teamId: string) {
-  const res = await fetch(`http://localhost:3000/api/team/${organizationId}/${teamId}/delete-team`, {
+  const res = await fetch(`${api_url}/api/team/${organizationId}/${teamId}/delete-team`, {
     method: 'DELETE',
     credentials: 'include',
   });

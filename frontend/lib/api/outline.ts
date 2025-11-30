@@ -1,5 +1,7 @@
+import { api_url } from "../config";
+
 export async function fetchOutlines(org_id: string) {
-  const res = await fetch(`http://localhost:3000/api/organization/${org_id}/outlines`, {
+  const res = await fetch(`${api_url}/api/organization/${org_id}/outlines`, {
     credentials: 'include',
   });
   if (!res.ok) throw new Error('Failed to fetch outlines');
@@ -17,7 +19,7 @@ export async function createOutlines(
     reviewer: string;
   }
 ) {
-  const res = await fetch(`http://localhost:3000/api/organization/${org_id}/outlines`, {
+  const res = await fetch(`${api_url}/api/organization/${org_id}/outlines`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
@@ -39,7 +41,7 @@ export async function editOutlines(
     reviewer: string;
   }>
 ) {
-  const res = await fetch(`http://localhost:3000/api/organization/${org_id}/outlines/${outline_id}`, {
+  const res = await fetch(`${api_url}/api/organization/${org_id}/outlines/${outline_id}`, {
     method: "PATCH",
     credentials: "include",
     headers: { "Content-Type": "application/json" },
@@ -53,7 +55,7 @@ export async function editOutlines(
 
 export async function deleteOutlines(org_id: string, outline_id: string) {
   const res = await fetch(
-    `http://localhost:3000/api/organization/${org_id}/outlines/${outline_id}`,
+    `${api_url}/api/organization/${org_id}/outlines/${outline_id}`,
     {
       method: 'DELETE',
       credentials: 'include',

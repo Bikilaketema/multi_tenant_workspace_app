@@ -1,7 +1,8 @@
-// lib/api/organization.ts
+import { api_url } from "../config";
+
 export async function fetchOrganizations() {
-  const res = await fetch('http://localhost:3000/api/organization', {
-    credentials: 'include', // cookies/session
+  const res = await fetch(`${api_url}/api/organization`, {
+    credentials: 'include',
   });
   if (!res.ok) {
     throw new Error('Failed to fetch organizations');
@@ -15,7 +16,7 @@ export async function createOrganization(data: {
   logo?: string;
   metadata?: Record<string, any>;
 }) {
-  const res = await fetch('http://localhost:3000/api/organization', {
+  const res = await fetch(`${api_url}/api/organization`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
@@ -28,7 +29,7 @@ export async function createOrganization(data: {
 }
 
 export async function deleteOrganization(organizationId: string) {
-  const res = await fetch(`http://localhost:3000/api/organization/${organizationId}`, {
+  const res = await fetch(`${api_url}/api/organization/${organizationId}`, {
     method: 'DELETE',
     credentials: 'include',
   });
@@ -39,7 +40,7 @@ export async function deleteOrganization(organizationId: string) {
 }
 
 export async function fetchOrganizationMembers(organizationId: string) {
-  const res = await fetch(`http://localhost:3000/api/organization/${organizationId}/members`, {
+  const res = await fetch(`${api_url}/api/organization/${organizationId}/members`, {
     credentials: 'include',
   });
   if (!res.ok) {
@@ -55,7 +56,7 @@ export async function inviteUserToOrg(organizationId: string, data: {
   resend: boolean;
  } ){
 
-  const res = await fetch(`http://localhost:3000/api/organization/${organizationId}/invite-member`, {
+  const res = await fetch(`${api_url}/api/organization/${organizationId}/invite-member`, {
     method: 'POST',
     credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
@@ -74,7 +75,7 @@ export async function removeUserFromOrg(organizationId: string, data: {
   email: string;
   organizationId: string;
 }) {
-  const res = await fetch(`http://localhost:3000/api/organization/${organizationId}/remove-member`, {
+  const res = await fetch(`${api_url}/api/organization/${organizationId}/remove-member`, {
     method: 'DELETE',
     credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
