@@ -31,6 +31,7 @@ import { useTeams, useCreateTeam, useDeleteTeam } from "@/hooks/useTeams"
 import { authClient } from "@/lib/auth"
 import { useParams } from "next/navigation"
 import { toast } from "sonner"
+import { useSignOut } from "@/hooks/useSignOut"
 
 
 const navItems = [
@@ -48,20 +49,9 @@ const navItems = [
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname()
-  const router = useRouter()
 
-  const handleSignOut = async () => {
-
-  await authClient.signOut({
-  fetchOptions: {
-    onSuccess: () => {
-        router.push("/sign-in");
-      },
-    },
-  });
-  toast.success('Logged out successfully!')
-  }
-
+  const { handleSignOut } = useSignOut();
+  
   const { data: organizations = [] } = useOrganizations();
 
   const { data: session } = authClient.useSession();

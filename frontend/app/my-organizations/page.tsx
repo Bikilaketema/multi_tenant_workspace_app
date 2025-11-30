@@ -25,6 +25,7 @@ import { OrganizationCard } from "@/components/organization-card"
 import { useMyInvitations, useAcceptInvitation, useRejectInvitation, useLeaveOrganization } from "@/hooks/useUser"
 import { authClient } from "@/lib/auth"
 import { toast } from "sonner"
+import { useSignOut } from "@/hooks/useSignOut"
 
 export default function OrganizationsPage() {
   const router = useRouter()
@@ -40,6 +41,7 @@ export default function OrganizationsPage() {
   const [newOrgSlug, setNewOrgSlug] = useState("")
   const [invitationDialogOpen, setInvitationDialogOpen] = useState(false);
 
+  const { handleSignOut } = useSignOut()
 
   const {data: invitations = [] } = useMyInvitations();
 
@@ -120,18 +122,6 @@ export default function OrganizationsPage() {
 
   if (isLoading) return <div>Loading organizations...</div>
   if (isError) return <div>Failed to load organizations.</div>
-
-    const handleSignOut = async () => {
-  
-    await authClient.signOut({
-    fetchOptions: {
-      onSuccess: () => {
-          router.push("/sign-in");
-        },
-      },
-    });
-    toast.success('Logged out!')
-    }
 
   return (
     <div className="min-h-screen bg-muted/30">
