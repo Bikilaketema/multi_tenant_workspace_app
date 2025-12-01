@@ -35,9 +35,7 @@ services:
         # Wait for the database to be fully ready before migrating
         echo "Waiting for DB..."
         sleep 5
-        # Run migrations sequentially
-        npm run better-auth:migrate || true
-        npm run prisma:migrate || true
+        npx prisma migrate reset || true
         # Start the application server
         npm run start:dev
 
