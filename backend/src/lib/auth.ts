@@ -3,7 +3,7 @@ import { organization } from "better-auth/plugins";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma";
 import { sendOrganizationInvitation } from "./email";
-import { frontend_url, trustedOrigins } from "config";
+import { frontend_url, trustedOrigins } from "../../config";
 
 export const auth = betterAuth({
   url: process.env.BETTER_AUTH_URL,
